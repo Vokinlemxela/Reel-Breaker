@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reel Breaker: Grand Heist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+        :root {
+            --spin-speed: 0.6s;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0f051a;
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Candy-Pop & Luxe Styles */
+        .candy-glass {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.4);
+            border-color: rgba(234, 179, 8, 0.7) !important;
+        }
+
+        .purple-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        }
+
+        /* Reel Motion */
+        .reel-container {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reel-strip {
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--spin-speed) cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+
+        .spinning .reel-strip {
+            filter: blur(3px);
+        }
+
+        .slot-item {
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bouncers-active {
+            background: repeating-linear-gradient(45deg, #200, #200 10px, #400 10px, #400 20px) !important;
+            animation: shake 0.2s infinite;
+            border: 2px solid #ef4444 !important;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(2px);
+            }
+
+            50% {
+                transform: translateX(-2px);
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(to bottom, #fbbf24, #d97706);
+            box-shadow: 0 8px 0 #92400e, 0 15px 35px rgba(217, 119, 6, 0.4);
+            transition: all 0.1s;
+        }
+
+        .btn-primary:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #92400e, 0 8px 15px rgba(217, 119, 6, 0.4);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center p-4 min-h-screen pb-20">
+
+    <!-- BOSS SECTION: LUXE METROPOLIS MANAGER -->
+    <div
+        class="w-full max-w-md candy-glass p-6 mb-4 shadow-2xl relative overflow-hidden border-b-4 border-yellow-500/20">
+        <div class="flex justify-between items-end mb-3 relative z-10">
+            <div>
+                <p class="text-[10px] font-black text-yellow-400 uppercase tracking-widest italic"><i
+                        class="fas fa-gem mr-1"></i> Luxe-Metropolis Bank</p>
+                <div id="vault-hp" class="text-3xl font-black italic text-white">$80,000</div>
+            </div>
+            <div id="boss-stance"
+                class="px-3 py-1 rounded-full bg-black/50 text-[9px] font-black uppercase text-white/40 border border-white/5 tracking-tighter">
+                Analyzing Player</div>
+        </div>
+        <div class="w-full bg-black/50 h-4 rounded-full overflow-hidden border border-white/5">
+            <div id="hp-fill"
+                class="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 w-full transition-all duration-700 shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+            </div>
+        </div>
+        <!-- Decorative Glow -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- HUD: STATUS & ANALYSIS -->
+    <div class="w-full max-w-md grid grid-cols-3 gap-2 mb-4">
+        <div class="candy-glass p-2.5 rounded-2xl flex flex-col items-center border border-white/5">
+            <i class="fas fa-crown text-yellow-400 text-xs mb-1"></i>
+            <span class="text-[8px] text-white/40 font-black uppercase">Glamour</span>
+            <span id="stat-luck" class="text-sm font-black text-white">25%</span>
+        </div>
+        <div class="candy-glass p-2.5 rounded-2xl flex flex-col items-center border border-white/5">
+            <i class="fas fa-user-secret text-red-400 text-xs mb-1"></i>
+            <span class="text-[8px] text-white/40 font-black uppercase">Security</span>
+            <span id="stat-bouncers" class="text-sm font-black text-white">0</span>
+        </div>
+        <div class="candy-glass p-2.5 rounded-2xl flex flex-col items-center border border-white/5">
+            <i class="fas fa-bolt text-blue-400 text-xs mb-1"></i>
+            <span class="text-[8px] text-white/40 font-black uppercase">Multiplier</span>
+            <span id="stat-mult" class="text-sm font-black text-white">x1.0</span>
+        </div>
+    </div>
+
+    <!-- REEL GRID -->
+    <div
+        class="w-full max-w-md aspect-[4/3] bg-black/80 rounded-[3rem] p-4 border-4 border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.8)] relative mb-6 overflow-hidden">
+        <div class="grid grid-cols-3 gap-4 h-full relative z-10">
+            <div class="reel-container bg-white/5 rounded-3xl border border-white/5">
+                <div id="reel-0" class="reel-strip"></div>
+            </div>
+            <div class="reel-container bg-white/5 rounded-3xl border border-white/5">
+                <div id="reel-1" class="reel-strip"></div>
+            </div>
+            <div class="reel-container bg-white/5 rounded-3xl border border-white/5">
+                <div id="reel-2" class="reel-strip"></div>
+            </div>
+        </div>
+
+        <!-- OVERLAYS -->
+        <div id="win-screen"
+            class="hidden absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-10 text-center animate-in zoom-in border-4 border-yellow-500 m-4 rounded-[2rem]">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-4xl font-black text-yellow-400 mb-2 uppercase italic leading-none">Victory!</h2>
+            <p class="text-white/60 text-[10px] mb-8 font-bold uppercase tracking-widest">You conquered Luxe-Metropolis!
+            </p>
+            <button onclick="game.reset()"
+                class="btn-primary text-white px-12 py-4 rounded-full font-black uppercase text-sm tracking-widest">Next
+                Target</button>
+        </div>
+        <div id="loss-screen"
+            class="hidden absolute inset-0 z-50 bg-red-950/95 flex flex-col items-center justify-center p-10 text-center animate-in zoom-in border-4 border-red-600 m-4 rounded-[2rem]">
+            <div class="text-6xl mb-4">⛔</div>
+            <h2 class="text-4xl font-black text-white mb-2 uppercase italic leading-none">Expelled!</h2>
+            <p class="text-white/60 text-[10px] mb-8 font-bold uppercase tracking-widest">Security took your last chip.
+            </p>
+            <button onclick="game.reset()"
+                class="bg-white text-black px-12 py-4 rounded-full font-black uppercase text-sm tracking-widest">Try
+                Again</button>
+        </div>
+    </div>
+
+    <!-- PLAYER INTERFACE -->
+    <div class="w-full max-w-md grid grid-cols-2 gap-3 mb-6">
+        <div class="candy-glass p-4 rounded-[2.5rem] border-l-4 border-emerald-500 flex flex-col justify-center">
+            <span class="text-[9px] font-black text-white/30 uppercase block mb-1">Your Stash</span>
+            <span id="player-cash" class="text-2xl font-black text-emerald-400 italic leading-none">$1,500</span>
+        </div>
+        <div class="grid grid-rows-2 gap-2">
+            <button onclick="game.toggleDatabase()"
+                class="bg-white/10 rounded-2xl text-[9px] font-black uppercase text-white/50 hover:bg-white/20 transition-all border border-white/5">
+                <i class="fas fa-scroll mr-1"></i> Paytable
+            </button>
+            <button onclick="game.toggleAuto()" id="auto-btn"
+                class="bg-white/10 rounded-2xl text-[9px] font-black uppercase text-white/50 border border-white/5">
+                <i class="fas fa-play-circle mr-1"></i> Auto: <span id="auto-status">OFF</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- SPIN BUTTON -->
+    <button id="spin-btn" onclick="game.spin()"
+        class="w-full max-w-md py-7 rounded-[3rem] btn-primary text-white font-black text-4xl mb-8 uppercase italic tracking-tighter shadow-yellow-500/20">
+        Break Bank
+    </button>
+
+    <!-- SHOP: HIGH ROLLER UPGRADES -->
+    <div class="w-full max-w-md grid grid-cols-3 gap-2">
+        <div onclick="game.upgrade('luck')"
+            class="candy-glass p-3 flex flex-col items-center cursor-pointer hover:gold-glow transition-all">
+            <i class="fas fa-star text-yellow-400 mb-1"></i>
+            <span class="text-[7px] font-black text-white/40 uppercase">Glamour</span>
+            <span id="luck-cost" class="text-[11px] font-black text-emerald-400">$600</span>
+        </div>
+        <div onclick="game.upgrade('mult')"
+            class="candy-glass p-3 flex flex-col items-center cursor-pointer hover:gold-glow transition-all">
+            <i class="fas fa-gem text-blue-400 mb-1"></i>
+            <span class="text-[7px] font-black text-white/40 uppercase">Luxury</span>
+            <span id="mult-cost" class="text-[11px] font-black text-emerald-400">$800</span>
+        </div>
+        <div onclick="game.upgrade('speed')"
+            class="candy-glass p-3 flex flex-col items-center cursor-pointer hover:gold-glow transition-all">
+            <i class="fas fa-forward text-pink-500 mb-1"></i>
+            <span class="text-[7px] font-black text-white/40 uppercase">Tempo</span>
+            <span id="speed-cost" class="text-[11px] font-black text-emerald-400">$400</span>
+        </div>
+    </div>
+
+    <!-- MODAL: PAYTABLE -->
+    <div id="db-modal"
+        class="hidden fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6">
+        <div class="candy-glass w-full max-w-md p-8 relative border-yellow-500/30">
+            <button onclick="game.toggleDatabase()" class="absolute top-6 right-6 text-white/30 hover:text-white"><i
+                    class="fas fa-times text-xl"></i></button>
+            <h2 class="text-3xl font-black mb-6 italic text-yellow-500 uppercase">Luxe Guide</h2>
+            <div id="db-symbols" class="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scroll">
+                <!-- JS Injection -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CARDS = [
+            { id: 'cherry', char: '🍒', val: 60, set: 'Classic' },
+            { id: 'lemon', char: '🍋', val: 80, set: 'Classic' },
+            { id: 'synth', char: '🎹', val: 120, set: 'Neon' },
+            { id: 'mic', char: '🎤', val: 180, set: 'Neon' },
+            { id: 'diamond', char: '💎', val: 500, set: 'Classic' }
+        ];
+        const JUNK = { id: 'junk', char: '🎟️', val: 0 };
+
+        const game = {
+            cash: 1500,
+            vault: 80000,
+            initialVault: 80000,
+            luck: 0.22,
+            multiplier: 1.0,
+            spinSpeed: 0.6,
+
+            upgrades: { luck: 0, mult: 0, speed: 0 },
+            inflation: 120,
+            inflationRate: 1.08,
+
+            results: [null, null, null],
+            virusTicks: Array(9).fill(0),
+
+            isSpinning: false,
+            autoMode: false,
+            stance: 'CALM',
+
+            init() {
+                this.updateUI();
+                this.setupReels();
+            },
+
+            setupReels() {
+                for (let i = 0; i < 3; i++) {
+                    const reelEl = document.getElementById(`reel-${i}`);
+                    reelEl.innerHTML = Array(15).fill(0).map(() => `<div class="slot-item opacity-10"><span class="text-4xl">🎟️</span></div>`).join('');
+                }
+            },
+
+            updateUI() {
+                document.getElementById('player-cash').innerText = `$${Math.floor(this.cash).toLocaleString()}`;
+                document.getElementById('vault-hp').innerText = `$${Math.floor(this.vault).toLocaleString()}`;
+                document.getElementById('hp-fill').style.width = `${(this.vault / this.initialVault) * 100}%`;
+
+                document.getElementById('luck-cost').innerText = `$${Math.floor(600 * Math.pow(1.8, this.upgrades.luck))}`;
+                document.getElementById('mult-cost').innerText = `$${Math.floor(800 * Math.pow(1.7, this.upgrades.mult))}`;
+                document.getElementById('speed-cost').innerText = `$${Math.floor(400 * Math.pow(1.6, this.upgrades.speed))}`;
+
+                const effLuck = this.stance === 'PANIC' ? this.luck - 0.12 : (this.stance === 'ANGRY' ? this.luck - 0.06 : this.luck);
+                document.getElementById('stat-luck').innerText = `${Math.floor(Math.max(0, effLuck) * 100)}%`;
+                document.getElementById('stat-mult').innerText = `x${this.multiplier.toFixed(1)}`;
+
+                const bouncers = this.virusTicks.filter(t => t > 0).length;
+                document.getElementById('stat-bouncers').innerText = bouncers;
+
+                const hpPer = this.vault / this.initialVault;
+                const stanceEl = document.getElementById('boss-stance');
+                if (hpPer < 0.3) { this.stance = 'PANIC'; stanceEl.className = "px-3 py-1 rounded-full bg-red-600 text-white text-[9px] font-black uppercase animate-pulse"; }
+                else if (hpPer < 0.7) { this.stance = 'ANGRY'; stanceEl.className = "px-3 py-1 rounded-full bg-orange-600 text-white text-[9px] font-black uppercase"; }
+                else { this.stance = 'CALM'; stanceEl.className = "px-3 py-1 rounded-full bg-zinc-800 text-white/40 text-[9px] font-black uppercase"; }
+                stanceEl.innerText = `${this.stance} MODE`;
+
+                document.documentElement.style.setProperty('--spin-speed', `${this.spinSpeed}s`);
+            },
+
+            spin() {
+                if (this.isSpinning || this.cash < this.inflation) {
+                    this.toggleAuto(false);
+                    return;
+                }
+
+                this.isSpinning = true;
+                this.cash -= this.inflation;
+
+                this.virusTicks = this.virusTicks.map(t => Math.max(0, t - 1));
+                this.updateUI();
+
+                const effLuck = this.stance === 'PANIC' ? this.luck - 0.12 : (this.stance === 'ANGRY' ? this.luck - 0.06 : this.luck);
+
+                this.results = Array(3).fill(null).map((_, i) => {
+                    if (this.virusTicks[3 + i] > 0) return { id: 'bouncer', char: '👮', val: 0 };
+                    return Math.random() < effLuck ? CARDS[Math.floor(Math.random() * CARDS.length)] : JUNK;
+                });
+
+                for (let i = 0; i < 3; i++) {
+                    const reelEl = document.getElementById(`reel-${i}`);
+                    reelEl.parentElement.classList.add('spinning');
+
+                    const strip = Array(15).fill(0).map(() => Math.random() < 0.5 ? CARDS[Math.floor(Math.random() * CARDS.length)] : JUNK);
+                    strip[strip.length - 1] = this.results[i];
+
+                    reelEl.innerHTML = strip.map(card => `
+                        <div class="slot-item ${card.id === 'bouncer' ? 'bouncers-active' : ''}">
+                            <span class="text-4xl drop-shadow-lg">${card.char}</span>
+                        </div>
+                    `).join('');
+
+                    reelEl.style.transition = 'none';
+                    reelEl.style.transform = 'translateY(0)';
+
+                    setTimeout(() => {
+                        reelEl.style.transition = `transform ${this.spinSpeed}s cubic-bezier(0.2, 0, 0.2, 1)`;
+                        reelEl.style.transform = `translateY(-${(strip.length - 1) * 110}px)`;
+                    }, 50 * i);
+                }
+
+                setTimeout(() => this.resolve(), (this.spinSpeed * 1000) + 100);
+            },
+
+            resolve() {
+                for (let i = 0; i < 3; i++) document.getElementById(`reel-${i}`).parentElement.classList.remove('spinning');
+
+                let win = 0;
+                const activeCards = this.results.filter(c => c.id !== 'junk' && c.id !== 'bouncer');
+
+                if (activeCards.length === 3) {
+                    const base = activeCards.reduce((s, c) => s + c.val, 0);
+                    if (activeCards[0].id === activeCards[1].id && activeCards[1].id === activeCards[2].id) win = base * 12;
+                    else if (activeCards.every(c => c.set === activeCards[0].set)) win = base * 3;
+                    else win = base;
+                }
+
+                win = Math.floor(win * this.multiplier);
+
+                if (win > 0) {
+                    this.cash += win;
+                    this.vault = Math.max(0, this.vault - win);
+                    this.inflation = 120;
+                } else {
+                    this.inflation = Math.floor(this.inflation * this.inflationRate);
+                    if (this.stance !== 'CALM' && Math.random() < 0.4) {
+                        const target = Math.floor(Math.random() * 3) + 3;
+                        this.virusTicks[target] = 4;
+                    }
+                }
+
+                this.isSpinning = false;
+                this.updateUI();
+
+                if (this.vault <= 0) this.showEnd('WIN');
+                else if (this.cash < this.inflation) this.showEnd('LOSS');
+                else if (this.autoMode) setTimeout(() => this.spin(), 400);
+            },
+
+            upgrade(type) {
+                if (this.isSpinning) return;
+                let cost = 0;
+                if (type === 'luck') {
+                    cost = Math.floor(600 * Math.pow(1.8, this.upgrades.luck));
+                    if (this.cash >= cost && this.upgrades.luck < 12) {
+                        this.cash -= cost; this.luck += 0.055; this.upgrades.luck++;
+                    }
+                } else if (type === 'mult') {
+                    cost = Math.floor(800 * Math.pow(1.7, this.upgrades.mult));
+                    if (this.cash >= cost) {
+                        this.cash -= cost; this.multiplier += 0.5; this.upgrades.mult++;
+                    }
+                } else if (type === 'speed') {
+                    cost = Math.floor(400 * Math.pow(1.6, this.upgrades.speed));
+                    if (this.cash >= cost && this.spinSpeed > 0.2) {
+                        this.cash -= cost; this.spinSpeed -= 0.1; this.upgrades.speed++;
+                    }
+                }
+                this.updateUI();
+            },
+
+            toggleDatabase() {
+                document.getElementById('db-modal').classList.toggle('hidden');
+                this.renderDatabase();
+            },
+
+            renderDatabase() {
+                const effLuck = this.stance === 'PANIC' ? this.luck - 0.12 : (this.stance === 'ANGRY' ? this.luck - 0.06 : this.luck);
+                const prob = (Math.pow(Math.max(0, effLuck), 3) * 100).toFixed(1);
+                document.getElementById('db-symbols').innerHTML = CARDS.map(s => `
+                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-3xl border border-white/5">
+                        <div class="flex items-center gap-4">
+                            <span class="text-4xl">${s.char}</span>
+                            <div>
+                                <p class="text-sm font-black text-white uppercase">${s.id}</p>
+                                <p class="text-[8px] font-bold text-white/30 uppercase">${s.set} Collection</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-black text-yellow-400">$${Math.floor(s.val * this.multiplier)}</p>
+                            <p class="text-[9px] font-bold text-white/20 uppercase">Win Chance: ~${prob}%</p>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            toggleAuto() {
+                this.autoMode = !this.autoMode;
+                const btn = document.getElementById('auto-btn');
+                const status = document.getElementById('auto-status');
+                if (this.autoMode) {
+                    btn.classList.add('border-yellow-500', 'bg-yellow-500/10');
+                    status.innerText = "ON";
+                    if (!this.isSpinning) this.spin();
+                } else {
+                    btn.classList.remove('border-yellow-500', 'bg-yellow-500/10');
+                    status.innerText = "OFF";
+                }
+            },
+
+            showEnd(res) {
+                this.autoMode = false;
+                document.getElementById(res === 'WIN' ? 'win-screen' : 'loss-screen').classList.remove('hidden');
+            },
+
+            reset() { location.reload(); }
+        };
+
+        window.onload = () => game.init();
+    </script>
+</body>
+
+</html>

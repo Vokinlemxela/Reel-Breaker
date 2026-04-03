@@ -70,17 +70,23 @@ const uiVault = document.getElementById("ui-vault")!;
 const fwWarning = document.getElementById("firewall-warning")!;
 const btnSpin = document.getElementById("btn-spin") as HTMLButtonElement;
 const spinBtnText = document.getElementById("spin-btn-text")!;
-const overdriveBadge = document.createElement("div"); // Overdrive badge placeholder
-overdriveBadge.className = "absolute -top-4 right-0 bg-pink-500 text-white text-[10px] px-3 py-1 rounded-full font-black hidden-important animate-pulse";
-overdriveBadge.textContent = "OVERDRIVE: LUCK x2";
-btnSpin.appendChild(overdriveBadge);
 const spinWinFlyout = document.getElementById("spin-win-flyout")!;
+const overdriveBadge = document.getElementById("overdrive-badge")!;
+const casinoCashDisplay = document.getElementById("casino-cash-display")!;
 const btnLeaveCasino = document.getElementById("btn-leave-casino")!;
 const slotGridContainer = document.getElementById("slot-grid-container")!;
 const paytableContainer = document.getElementById("paytable-container")!;
 const btnAutoSpin = document.getElementById("btn-auto-spin") as HTMLButtonElement;
 const btnMonteCarlo = document.getElementById("btn-monte-carlo")!;
 const btnRecoveryGrind = document.getElementById("btn-recovery-grind")!;
+const rulesModal = document.getElementById("rules-modal")!;
+const btnShowRules = document.getElementById("btn-show-rules")!;
+const btnCloseRules = document.getElementById("btn-close-rules")!;
+
+btnShowRules.addEventListener("click", () => rulesModal.classList.remove("hidden-important"));
+btnCloseRules.addEventListener("click", () => rulesModal.classList.add("hidden-important"));
+rulesModal.addEventListener("click", (e) => { if (e.target === rulesModal) rulesModal.classList.add("hidden-important"); });
+
 
 // 3. Helpers
 function updateGlobalUI() {
@@ -93,6 +99,9 @@ function updateGlobalUI() {
     navCpu.textContent = cpuStr;
     navDataText.textContent = `Golden_Chips: ${dataStrStr}`;
     navDataBar.style.width = `${(profile.dataPoints / 1000) * 100}%`;
+
+    // Casino cash display
+    if (casinoCashDisplay) casinoCashDisplay.textContent = cashStr;
 
     // Mobile Top Bar
     mNavCashTop.textContent = cashStr;
@@ -253,31 +262,34 @@ function enterCasino(id: string) {
         slotGridContainer.innerHTML += `<div id="slot-cell-${i}" class="bg-black rounded-xl border-2 border-white/5 flex items-center justify-center text-3xl font-black text-white shadow-inner transition-all duration-200">?</div>`;
     }
     
-    uiAlertBar.style.width = "0%";
-    uiVault.textContent = session.vaultHp.toString();
+    // Reset vault HP bar to full
+    uiAlertBar.style.width = "100%";
+    uiVault.textContent = `$${session.vaultHp.toLocaleString()}`;
     fwWarning.classList.add("hidden-important");
     
+    // paytableContainer keeps the Paylines visual for the modal — render it once
     let paytableHTML = `<div class="grid grid-cols-4 gap-2 mb-2">`;
     Paylines3x3.forEach(line => {
-        let gridHTML = `<div class="grid grid-cols-3 grid-rows-3 gap-[2px] bg-slate-950 p-[2px] rounded w-10 h-10 shrink-0 border border-slate-700">`;
+        let gridHTML = `<div class="grid grid-cols-3 grid-rows-3 gap-[2px] bg-black/60 p-[2px] rounded w-10 h-10 shrink-0 border border-white/10">`;
         for(let y=0; y<3; y++) {
             for(let x=0; x<3; x++) {
                 const isPart = line.path.some(c => c.x === x && c.y === y);
-                gridHTML += `<div class="${isPart ? 'bg-yellow-400 shadow-[0_0_5px_rgb(250,204,21)]' : 'bg-slate-800'} rounded-sm"></div>`;
+                gridHTML += `<div class="${isPart ? 'bg-amber-400 shadow-[0_0_4px_rgb(251,191,36)]' : 'bg-white/5'} rounded-sm"></div>`;
             }
         }
         gridHTML += `</div>`;
         paytableHTML += `
-            <div class="flex flex-col items-center justify-center bg-slate-900 border border-white/5 hover:border-white/20 transition-colors rounded p-1" title="${line.name}">
+            <div class="flex flex-col items-center justify-center bg-white/5 border border-white/10 hover:border-amber-400/30 transition-colors rounded-xl p-1.5" title="${line.name}">
                 ${gridHTML}
-                <span class="text-[8px] font-black mt-1 text-emerald-400 text-center uppercase leading-tight">${line.name}<br>x${line.multiplier}</span>
+                <span class="text-[7px] font-black mt-1 text-amber-400 text-center uppercase leading-tight">${line.name}<br>x${line.multiplier}</span>
             </div>
         `;
     });
-    paytableHTML += `</div><div class="mt-2 text-[9px] text-slate-500 block text-center leading-tight">УРОН НАНОСЯТ ТОЛЬКО КАРТЫ СЫГРАВШЕЙ ЛИНИИ. СОВПАДЕНИЕ 3Х IDOLS ДАЕТ OVERDRIVE.</div>`;
+    paytableHTML += `</div><p class="text-[9px] text-white/30 text-center mt-2">Совпадение 3 одинаковых карт на линии — выигрыш. IDOLS x3 даёт VIP-статус.</p>`;
     paytableContainer.innerHTML = paytableHTML;
 
-    spinBtnText.textContent = `СПИН ($${getSpinCost()})`;
+    spinBtnText.textContent = `BREAK THE BANK ($${getSpinCost()})`;
+    btnSpin.disabled = false;
     
     // Render Local Hacks Store
     renderLocalHacks();
@@ -290,40 +302,22 @@ function renderLocalHacks() {
     if (!session) return;
     
     container.innerHTML = `
-        <h4 class="text-[10px] font-black text-slate-600 uppercase mb-4 tracking-[0.2em]">Локальные Хаки (Сброс при выходе)</h4>
-        <div class="space-y-3">
-           <button id="hack-mult" class="w-full flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-white/5 hover:border-slate-600 transition-colors">
-               <div class="text-left">
-                  <div class="text-sm font-black text-slate-200">Overclock (+x0.5 Урон)</div>
-                  <div class="text-[10px] text-slate-500">Повышает множитель текущих комбинаций</div>
-               </div>
-               <div class="font-mono text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded">$100</div>
+        <div class="flex gap-2 flex-wrap">
+           <button id="hack-mult" class="flex-1 min-w-0 candy-glass px-3 py-2 text-[10px] font-black uppercase text-amber-400 border border-amber-400/20 hover:border-amber-400/60 transition-all active:scale-95">
+               ⚡ x+0.5<br><span class="text-white/30 font-normal normal-case text-[9px]">$100</span>
            </button>
-           <button id="hack-luck" class="w-full flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-white/5 hover:border-slate-600 transition-colors">
-               <div class="text-left">
-                  <div class="text-sm font-black text-slate-200">RAM Injector (Удача)</div>
-                  <div class="text-[10px] text-slate-500">Повышает шанс спавна дорогих карт</div>
-               </div>
-               <div class="font-mono text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded">$150</div>
+           <button id="hack-luck" class="flex-1 min-w-0 candy-glass px-3 py-2 text-[10px] font-black uppercase text-fuchsia-400 border border-fuchsia-400/20 hover:border-fuchsia-400/60 transition-all active:scale-95">
+               🌟 +удача<br><span class="text-white/30 font-normal normal-case text-[9px]">$150</span>
            </button>
-           <button id="hack-dmg" class="w-full flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-white/5 hover:border-slate-600 transition-colors">
-               <div class="text-left">
-                  <div class="text-sm font-black text-slate-200">Brute Force (+20 Урон)</div>
-                  <div class="text-[10px] text-slate-500">Добавляет плоский урон к финальной руке</div>
-               </div>
-               <div class="font-mono text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded">$200</div>
+           <button id="hack-dmg" class="flex-1 min-w-0 candy-glass px-3 py-2 text-[10px] font-black uppercase text-pink-400 border border-pink-400/20 hover:border-pink-400/60 transition-all active:scale-95">
+               💥 +$20<br><span class="text-white/30 font-normal normal-case text-[9px]">$200</span>
            </button>
-        </div>
-        <div class="mt-4 text-[10px] text-slate-500 grid flex justify-between uppercase">
-            <span>Бафф Множителя: +x${session.localMultiplierBonus}</span>
-            <span>Бафф Удачи: +${session.localLuckBonus}</span>
-            <span>Бафф Урона: +$${session.localDamageBonus}</span>
         </div>
     `;
     
     document.getElementById("hack-mult")!.addEventListener("click", () => buyLocalHack(100, () => session!.localMultiplierBonus += 0.5));
     document.getElementById("hack-luck")!.addEventListener("click", () => buyLocalHack(150, () => session!.localLuckBonus += 1));
-    document.getElementById("hack-dmg")!.addEventListener("click", () => buyLocalHack(200, () => session!.localDamageBonus += 20));
+    document.getElementById("hack-dmg")!.addEventListener("click",  () => buyLocalHack(200, () => session!.localDamageBonus += 20));
 }
 
 function buyLocalHack(price: number, applyUpgrade: () => void) {
@@ -463,35 +457,34 @@ btnSpin.addEventListener("click", () => {
                     
                     const cell = result.grid[x][y];
                     if (cell.currentCard === null) {
-                        el.textContent = "X";
-                        el.className = "bg-slate-900 rounded-xl border border-white/5 flex items-center justify-center text-3xl font-black text-slate-700 shadow-inner transition-all duration-200 z-0";
+                        el.innerHTML = '<span class="text-3xl opacity-20">🎟️</span>';
+                        el.className = "bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center transition-all duration-200";
                     } else {
-                        const nameParts = cell.currentCard.name.split(" ");
-                        const abbreviation = nameParts[0].substring(0,2).toUpperCase();
-                        el.innerHTML = `<span class="z-10 text-xl font-mono">${abbreviation}</span>`;
-                        
-                        let baseClass = "bg-slate-800 rounded-xl border-2 flex flex-col items-center justify-center font-black shadow-lg transition-all duration-200 relative overflow-hidden z-10";
-                        
-                        // Add mini icon representation
-                        el.innerHTML += `<i data-lucide="${cell.currentCard.icon}" class="w-6 h-6 absolute opacity-20"></i>`;
-                        
-                        // Indicators 
+                        const abbreviation = cell.currentCard.name.split(" ")[0].substring(0, 2).toUpperCase();
+                        el.innerHTML = `<span class="z-10 text-base font-black"> ${abbreviation}</span>`;
+
+                        let baseClass = "bg-white/10 rounded-2xl border-2 flex flex-col items-center justify-center font-black shadow-lg transition-all duration-200 relative overflow-hidden";
+
+                        // Icon background
+                        el.innerHTML += `<i data-lucide="${cell.currentCard.icon}" class="w-5 h-5 absolute opacity-10"></i>`;
+
+                        // Rarity/role indicators
                         if (cell.currentCard.isInitiator) {
-                            baseClass += " border-amber-400/50 text-amber-300";
+                            baseClass += " border-amber-400/60 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.2)]";
                             el.innerHTML += `<div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-amber-400"></div>`;
                         } else if (cell.currentCard.isFinisher) {
-                            baseClass += " border-fuchsia-500/50 text-fuchsia-400";
+                            baseClass += " border-fuchsia-500/60 text-fuchsia-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]";
                             el.innerHTML += `<div class="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-fuchsia-400"></div>`;
                         } else {
-                            baseClass += " border-pink-500/30 text-pink-400";
+                            baseClass += " border-white/15 text-white/70";
                         }
-                        
+
                         const isGlitched = result.convertedCells.some(c => c.x === x && c.y === y);
                         if (isGlitched) {
-                            baseClass += " animate-pulse ring-4 ring-pink-500 shadow-[0_0_20px_rgba(236,72,153,1)]";
-                            el.innerHTML += `<div class="absolute top-0 text-[8px] bg-pink-500 text-black px-1 font-bold">ОТВЛЕЧЕН</div>`;
+                            baseClass += " ring-2 ring-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.8)] animate-pulse";
+                            el.innerHTML += `<div class="absolute top-0 text-[7px] bg-pink-500 text-black px-1 font-black">ОТВЛЕЧЕН</div>`;
                         }
-                        
+
                         el.className = baseClass;
                     }
                 }
@@ -546,8 +539,12 @@ btnSpin.addEventListener("click", () => {
              logMessage(`🔥 ПУСТОЙ ХОД! Охрана нервничает: тревога +${session!.inflationCount * 10}%.`);
         }
 
-        spinBtnText.textContent = `СПИН ($${getSpinCost()})`;
-        btnSpin.disabled = false;
+        // Update vault HP bar (fills from right as HP drops)
+        if (session) {
+            const hpPct = Math.max(0, (session.vaultHp / session.baseVaultHp) * 100);
+            uiAlertBar.style.width = `${hpPct}%`;
+            uiVault.textContent = `$${session.vaultHp.toLocaleString()}`;
+        }
 
         if (result.totalDamage > 0) {
             // Apply Skill: Vault Cracker (+10% damage)

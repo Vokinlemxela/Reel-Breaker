@@ -1,46 +1,151 @@
-/* Scene switching utility */
-.scene { display: none; }
-.active-scene { display: block; animation: fadeIn 0.3s ease-out; }
+/* === GRAND HEIST: CANDY-POP LUXE STYLES === */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap');
 
+:root {
+    --spin-speed: 0.6s;
+    --bg-deep: #0f051a;
+    --gold: #fbbf24;
+    --fuchsia: #a855f7;
+    --pink: #ec4899;
+}
+
+/* === BASE === */
+body {
+    font-family: 'Montserrat', 'Inter', sans-serif;
+    background-color: var(--bg-deep);
+    color: #ffffff;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow-x: hidden;
+}
+
+/* === SCENE SWITCHING === */
+.scene { display: none; }
+.active-scene { display: block; animation: fadeIn 0.25s ease-out; }
 .hidden-important { display: none !important; }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Specific sequence component styles */
-.seq-notch {
-  width: 40px; height: 40px; border-radius: 0.75rem; border: 2px solid; 
-  display: flex; align-items: center; justify-content: center; 
-  font-weight: 700; font-size: 0.75rem; transition: all 0.2s;
+/* === GLASSMORPHISM CARDS === */
+.candy-glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.75rem;
 }
 
-.seq-notch.hidden-val { border-color: #1e293b; background: #020617; color: transparent; }
-.seq-notch.visible-val { border-color: #10b981; background: rgba(16, 185, 129, 0.2); color: #34d399; }
-.seq-notch.error-val { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+/* === GOLD GLOW (hover state) === */
+.gold-glow {
+    box-shadow: 0 0 30px rgba(234, 179, 8, 0.45) !important;
+    border-color: rgba(234, 179, 8, 0.7) !important;
+}
 
-/* Log system */
+/* === GRADIENT BG FOR DEEP DARK PURPLE === */
+.bg-deep { background-color: var(--bg-deep); }
+
+/* === REEL / SLOT MACHINERY === */
+.reel-container {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: 1.5rem;
+}
+
+.reel-strip {
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--spin-speed) cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.spinning .reel-strip {
+    filter: blur(3px);
+}
+
+.slot-item {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* === GOLDEN SPIN BUTTON (3D Arcade) === */
+.btn-primary {
+    background: linear-gradient(to bottom, #fbbf24, #d97706);
+    box-shadow: 0 8px 0 #92400e, 0 15px 35px rgba(217, 119, 6, 0.4);
+    transition: all 0.1s;
+    border: none;
+    outline: none;
+}
+.btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 4px 0 #92400e, 0 8px 15px rgba(217, 119, 6, 0.3);
+}
+.btn-primary:disabled {
+    opacity: 0.5;
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* === NAV ACTIVE STATE === */
+.nav-active {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24 !important;
+    border-color: rgba(251, 191, 36, 0.4) !important;
+}
+.nav-active i svg, .nav-active i {
+    color: #fbbf24 !important;
+    stroke: #fbbf24 !important;
+}
+
+/* === LOG SYSTEM (Тосты) === */
 .log-entry {
-  background: rgba(0,0,0,0.8); border-left: 3px solid #10b981; 
-  padding: 8px 12px; font-family: monospace; font-size: 12px; 
-  color: #34d399; animation: fadeOut 3s forwards;
+    background: rgba(15, 5, 26, 0.92);
+    backdrop-filter: blur(8px);
+    border-left: 3px solid var(--gold);
+    padding: 8px 12px;
+    font-size: 11px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 0.75rem;
+    animation: fadeOut 3.5s forwards;
 }
 
 @keyframes fadeOut {
-  0% { opacity: 1; transform: translateX(-10px); }
-  10% { opacity: 1; transform: translateX(0); }
-  80% { opacity: 1; }
-  100% { opacity: 0; display: none; }
+    0%   { opacity: 1; transform: translateX(-8px); }
+    8%   { opacity: 1; transform: translateX(0); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-/* Bottom Nav active state specific */
-.nav-active {
-  background-color: #10b981;
-  color: #020617 !important;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+/* === GAMBIT / HUSTLE MINIGAME === */
+.seq-notch {
+    width: 40px; height: 40px; border-radius: 0.75rem; border: 2px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.75rem; transition: all 0.2s;
+}
+.seq-notch.hidden-val  { border-color: rgba(255,255,255,0.08); background: rgba(0,0,0,0.4); color: transparent; }
+.seq-notch.visible-val { border-color: #fbbf24; background: rgba(251,191,36,0.15); color: #fbbf24; }
+.seq-notch.error-val   { border-color: #ef4444; background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* === BOUNCER REEL CELL EFFECT === */
+.bouncers-active {
+    background: repeating-linear-gradient(45deg, #200, #200 10px, #400 10px, #400 20px) !important;
+    animation: shake 0.2s infinite;
+    border: 2px solid #ef4444 !important;
+}
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(2px); }
+    75%       { transform: translateX(-2px); }
 }
 
-.nav-active i svg, .nav-active i {
-  stroke: #020617 !important;
-}
+/* === SCROLLBAR LUXE === */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
