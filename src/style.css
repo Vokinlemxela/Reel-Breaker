@@ -1,0 +1,46 @@
+/* Scene switching utility */
+.scene { display: none; }
+.active-scene { display: block; animation: fadeIn 0.3s ease-out; }
+
+.hidden-important { display: none !important; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Specific sequence component styles */
+.seq-notch {
+  width: 40px; height: 40px; border-radius: 0.75rem; border: 2px solid; 
+  display: flex; align-items: center; justify-content: center; 
+  font-weight: 700; font-size: 0.75rem; transition: all 0.2s;
+}
+
+.seq-notch.hidden-val { border-color: #1e293b; background: #020617; color: transparent; }
+.seq-notch.visible-val { border-color: #10b981; background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.seq-notch.error-val { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+/* Log system */
+.log-entry {
+  background: rgba(0,0,0,0.8); border-left: 3px solid #10b981; 
+  padding: 8px 12px; font-family: monospace; font-size: 12px; 
+  color: #34d399; animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; transform: translateX(-10px); }
+  10% { opacity: 1; transform: translateX(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+/* Bottom Nav active state specific */
+.nav-active {
+  background-color: #10b981;
+  color: #020617 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.nav-active i svg, .nav-active i {
+  stroke: #020617 !important;
+}
