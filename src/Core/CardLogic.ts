@@ -4,7 +4,7 @@ import type { ICardEffect } from "./CardData";
 
 export class RetroJackpotLogic implements ICardEffect {
     // Retro doesn't do active Aura phase commands, it relies on passive Line resolution.
-    execute(command: ActionCommand, state: GridState, engine: FortunaliaEngine): void {
+    execute(_command: ActionCommand, _state: GridState, _engine: FortunaliaEngine): void {
         // Passive: do nothing during Aura Phase
     }
 }

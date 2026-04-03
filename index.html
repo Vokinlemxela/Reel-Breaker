@@ -1,13 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Reel Breaker: Overdrive</title>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,98 +21,189 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['Share Tech Mono', 'monospace'],
-            }
-          }
-        }
-      }
+              sans: ["Inter", "sans-serif"],
+              mono: ["Share Tech Mono", "monospace"],
+            },
+          },
+        },
+      };
     </script>
     <!-- Custom minimalist css for scene switching -->
-    <link rel="stylesheet" href="/src/style.css">
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body class="bg-slate-950 text-slate-200 font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-    
+  <body
+    class="bg-slate-950 text-slate-200 font-sans min-h-screen flex flex-col md:flex-row overflow-hidden"
+  >
     <!-- GLOBAL NAVIGATION (Mobile Bottom Bar / PC Left Sidebar) -->
-    <nav id="global-nav" class="hidden-important md:fixed md:left-0 md:top-0 md:h-full md:w-64 bg-slate-900 border-t md:border-t-0 md:border-r border-slate-800 flex flex-row md:flex-col p-2 md:p-4 z-50 shadow-xl fixed bottom-0 w-full justify-around md:justify-start">
+    <nav
+      id="global-nav"
+      class="hidden-important md:fixed md:left-0 md:top-0 md:h-full md:w-64 bg-slate-900 border-t md:border-t-0 md:border-r border-slate-800 flex flex-row md:flex-col p-2 md:p-4 z-50 shadow-xl fixed bottom-0 w-full justify-around md:justify-start"
+    >
       <div class="hidden md:flex items-center gap-3 mb-8 px-2">
-        <i data-lucide="terminal" class="text-emerald-500 w-6 h-6"></i>
-        <h1 class="text-xl font-black text-emerald-400 tracking-tighter italic uppercase">R_Breaker</h1>
+        <i data-lucide="gem" class="text-amber-400 w-6 h-6"></i>
+        <h1
+          class="text-xl font-black text-amber-400 tracking-tighter italic uppercase"
+        >
+          R_Breaker
+        </h1>
       </div>
-      
-      <div class="flex md:flex-col justify-around md:justify-start gap-2 flex-1 w-full">
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="GRIND">
-          <i data-lucide="hammer" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Работа</span>
+
+      <div
+        class="flex md:flex-col justify-around md:justify-start gap-2 flex-1 w-full"
+      >
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="GRIND"
+        >
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Трюки</span>
         </button>
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="MAP">
-          <i data-lucide="map" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Город</span>
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="MAP"
+        >
+          <i data-lucide="building" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Метрополис</span>
         </button>
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="DECK">
-          <i data-lucide="layers" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Дека</span>
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="DECK"
+        >
+          <i data-lucide="layers" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Дека</span>
         </button>
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="COLLECTION">
-          <i data-lucide="book" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Архив</span>
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="COLLECTION"
+        >
+          <i data-lucide="book" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Архив</span>
         </button>
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="SKILLS">
-          <i data-lucide="cpu" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Ядро</span>
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="SKILLS"
+        >
+          <i data-lucide="star" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Стиль</span>
         </button>
-        <button class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400" data-target="SHOP">
-          <i data-lucide="package" class="w-5 h-5"></i> <span class="text-[10px] md:text-sm font-bold">Магазин</span>
+        <button
+          class="nav-btn flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:p-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400"
+          data-target="SHOP"
+        >
+          <i data-lucide="package" class="w-5 h-5"></i>
+          <span class="text-[10px] md:text-sm font-bold">Магазин</span>
         </button>
       </div>
 
-      <div class="hidden md:block mt-auto p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3 shadow-inner">
+      <div
+        class="hidden md:block mt-auto p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3 shadow-inner"
+      >
         <div>
-          <div class="text-[10px] text-slate-500 uppercase font-bold">Баланс</div>
-          <div id="nav-cash" class="text-emerald-400 font-mono font-bold text-lg">$0</div>
+          <div class="text-[10px] text-slate-500 uppercase font-bold">
+            Баланс
+          </div>
+          <div
+            id="nav-cash"
+            class="text-amber-400 font-mono font-bold text-lg"
+          >
+            $0
+          </div>
         </div>
         <div>
-          <div class="text-[10px] text-slate-500 uppercase font-bold">CPU Чипы</div>
-          <div id="nav-cpu" class="text-blue-400 font-mono font-bold">0 CPU</div>
+          <div class="text-[10px] text-slate-500 uppercase font-bold">
+            Golden Chips
+          </div>
+          <div id="nav-cpu" class="text-amber-200 font-mono font-bold">
+            0 GC
+          </div>
         </div>
         <div class="relative h-1.5 bg-slate-800 rounded-full overflow-hidden">
-          <div id="nav-data-bar" class="absolute h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+          <div
+            id="nav-data-bar"
+            class="absolute h-full bg-pink-500 transition-all duration-300"
+            style="width: 0%"
+          ></div>
         </div>
-        <div id="nav-data-text" class="text-[8px] text-slate-600 uppercase text-center tracking-widest italic">Data_Sync: 0/1000</div>
+        <div
+          id="nav-data-text"
+          class="text-[8px] text-slate-600 uppercase text-center tracking-widest italic"
+        >
+          Golden_Chips: 0/1000
+        </div>
       </div>
     </nav>
 
     <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 transition-all duration-300 p-4 md:p-8 md:ml-64 pb-20 md:pb-8 h-screen overflow-y-auto">
-      
+    <main
+      class="flex-1 transition-all duration-300 p-4 md:p-8 md:ml-64 pb-20 md:pb-8 h-screen overflow-y-auto"
+    >
       <!-- SCENE: INTRO -->
       <section id="scene-intro" class="scene h-full">
         <div class="max-w-xl mx-auto h-full flex flex-col justify-center">
-          <div class="bg-slate-900 p-8 rounded-[2rem] border border-white/5 shadow-2xl">
+          <div
+            class="bg-slate-900 p-8 rounded-[2rem] border border-white/5 shadow-2xl"
+          >
             <div id="intro-step-1" class="space-y-6 text-center">
-              <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                <i data-lucide="history" class="text-emerald-500 w-10 h-10"></i>
+              <div
+                class="w-20 h-20 bg-amber-400/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-400/20"
+              >
+                <i data-lucide="crown" class="text-amber-400 w-10 h-10"></i>
               </div>
-              <h2 class="text-2xl font-black italic">ПОСЛЕДНЯЯ СТАВКА</h2>
+              <h2 class="text-2xl font-black italic">ДЕРЗКОЕ ОГРАБЛЕНИЕ</h2>
               <p class="text-slate-400 text-sm leading-relaxed">
-                Ты помнишь этот момент. Три семерки почти замерли на линии... и вдруг одна из них дернулась вверх. 
-                Они подменили результат программно. Ты потерял всё.
+                Ты приехал в Люкс-Метрополис с одной целью — обчистить местных эксцентричных миллиардеров. 
+                Готов сорвать куш?
               </p>
-              <button id="btn-intro-next" class="w-full py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">КЛЯТВА МЕСТИ</button>
+              <button
+                id="btn-intro-next"
+                class="w-full py-4 bg-amber-400 text-slate-950 font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all"
+              >
+                КЛЯТВА СИНДИКАТУ
+              </button>
             </div>
-            
+
             <div id="intro-step-2" class="space-y-6 hidden-important">
-              <h3 class="text-xl font-bold text-red-500 uppercase">ТВОЙ АЛГОРИТМ:</h3>
+              <h3 class="text-xl font-bold text-pink-500 uppercase">
+                ТВОЙ ПЛАН:
+              </h3>
               <div class="space-y-4">
                 <div class="flex gap-4 items-start">
-                  <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0">1</div>
-                  <p class="text-xs text-slate-400 font-medium italic">Зарабатывай в трущобах: запоминай длинные последовательности, чтобы получать больше кеша.</p>
+                  <div
+                    class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
+                  >
+                    1
+                  </div>
+                  <p class="text-xs text-slate-400 font-medium italic">
+                    Зарабатывай на уличных фокусах, чтобы скопить стартовый капитал на спины.
+                  </p>
                 </div>
                 <div class="flex gap-4 items-start">
-                  <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0">2</div>
-                  <p class="text-xs text-slate-400 font-medium italic">Выбивая линии в казино, ты перехватываешь Данные. Конвертируй их в CPU-чипы.</p>
+                  <div
+                    class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
+                  >
+                    2
+                  </div>
+                  <p class="text-xs text-slate-400 font-medium italic">
+                    Выбивая линии в казино, ты зарабатываешь Golden Chips для мета-прокачки Гламура и Роскоши.
+                  </p>
                 </div>
                 <div class="flex gap-4 items-start">
-                  <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0">3</div>
-                  <p class="text-xs text-slate-400 font-medium italic">Покупай локальные хаки за деньги во время игры, а чипы трать на глобальную архитектуру.</p>
+                  <div
+                    class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
+                  >
+                    3
+                  </div>
+                  <p class="text-xs text-slate-400 font-medium italic">
+                    Скупай редкие карты на Черном Рынке и собирай колоду, чтобы пробить самые неприступные Сейфы.
+                  </p>
                 </div>
               </div>
-              <button id="btn-enter-matrix" class="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all">ВОЙТИ В СЕТЬ</button>
+              <button
+                id="btn-enter-matrix"
+                class="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all"
+              >
+                СДЕЛАТЬ ШАГ
+              </button>
             </div>
           </div>
         </div>
@@ -115,39 +212,82 @@
       <!-- SCENE: GRIND -->
       <section id="scene-grind" class="scene">
         <div class="max-w-2xl mx-auto pt-4">
-          <header class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <header
+            class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
+          >
             <div>
-              <h2 class="text-3xl font-black italic text-emerald-400 uppercase tracking-tighter">Трущобы_v3.0</h2>
-              <p class="text-slate-500 text-sm font-medium">Безошибочные цепочки повышают твой уровень.</p>
+              <h2
+                class="text-3xl font-black italic text-fuchsia-500 uppercase tracking-tighter"
+              >
+                Уличная Магия
+              </h2>
+              <p class="text-slate-500 text-sm font-medium">
+                Вовремя останавливай маятник, чтобы скопить на ставку.
+              </p>
             </div>
-            <div class="text-left md:text-right bg-slate-900 p-3 rounded-xl border border-white/5">
-              <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Прогресс Хакера</div>
-              <div id="hustle-lvl-display" class="text-lg font-black text-emerald-500 font-mono">
-                Уровень 1 <span class="text-slate-500 text-xs">(0/10)</span>
+            <div
+              class="text-left md:text-right bg-slate-900 p-3 rounded-xl border border-white/5"
+            >
+              <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">
+                Репутация
+              </div>
+              <div
+                id="hustle-lvl-display"
+                class="text-lg font-black text-fuchsia-400 font-mono"
+              >
+                Трюкач <span class="text-slate-500 text-xs">(0/10)</span>
               </div>
             </div>
           </header>
 
-          <div class="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 flex flex-col items-center shadow-2xl relative overflow-hidden">
-             
-             <!-- Pendulum UI -->
-             <div class="w-full max-w-sm h-12 bg-slate-950 rounded-full border border-slate-800 mb-10 relative overflow-hidden flex items-center justify-center">
-                <!-- Zero point marker (target) -->
-                <div class="absolute h-full w-1 bg-white z-10 opacity-50"></div>
-                <!-- Success Window -->
-                <div id="gambit-target-window" class="absolute h-full bg-emerald-500/20 border-x border-emerald-500/50" style="width: 30%"></div>
-                <!-- Moving pendulum head -->
-                <div id="gambit-head" class="absolute h-8 w-2 bg-yellow-400 shadow-[0_0_10px_rgb(250,204,21)] rounded-full -translate-x-1/2 left-[50%] transition-none z-20"></div>
-             </div>
+          <div
+            class="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 flex flex-col items-center shadow-2xl relative overflow-hidden"
+          >
+            <!-- Pendulum UI -->
+            <div
+              class="w-full max-w-sm h-12 bg-slate-950 rounded-full border border-slate-800 mb-10 relative overflow-hidden flex items-center justify-center"
+            >
+              <!-- Zero point marker (target) -->
+              <div class="absolute h-full w-1 bg-white z-10 opacity-50"></div>
+              <!-- Success Window -->
+              <div
+                id="gambit-target-window"
+                class="absolute h-full bg-emerald-500/20 border-x border-emerald-500/50"
+                style="width: 30%"
+              ></div>
+              <!-- Moving pendulum head -->
+              <div
+                id="gambit-head"
+                class="absolute h-8 w-2 bg-yellow-400 shadow-[0_0_10px_rgb(250,204,21)] rounded-full -translate-x-1/2 left-[50%] transition-none z-20"
+              ></div>
+            </div>
 
             <div id="hustle-controls-start" class="w-full flex justify-center">
-               <button id="btn-start-hustle" class="px-12 py-5 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95 transition-all w-80">СТАРТ</button>
+              <button
+                id="btn-start-hustle"
+                class="px-12 py-5 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95 transition-all w-80"
+              >
+                СТАРТ
+              </button>
             </div>
-            <div id="hustle-controls-stop" class="w-full flex justify-center hidden-important">
-               <button id="btn-stop-hustle" class="px-12 py-5 bg-red-500 text-white font-black rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:scale-105 active:scale-95 transition-all w-80">СТОП</button>
+            <div
+              id="hustle-controls-stop"
+              class="w-full flex justify-center hidden-important"
+            >
+              <button
+                id="btn-stop-hustle"
+                class="px-12 py-5 bg-red-500 text-white font-black rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:scale-105 active:scale-95 transition-all w-80"
+              >
+                СТОП
+              </button>
             </div>
 
-            <div id="hustle-status-msg" class="mt-8 text-[10px] text-slate-600 uppercase font-black tracking-[0.2em] h-4 text-center w-full">ГОТОВ?</div>
+            <div
+              id="hustle-status-msg"
+              class="mt-8 text-[10px] text-slate-600 uppercase font-black tracking-[0.2em] h-4 text-center w-full"
+            >
+              ГОТОВ?
+            </div>
           </div>
         </div>
       </section>
@@ -155,8 +295,12 @@
       <!-- SCENE: MAP -->
       <section id="scene-map" class="scene">
         <div class="max-w-3xl mx-auto pt-4">
-           <h2 class="text-3xl font-black mb-10 italic uppercase tracking-widest text-slate-100">Карта Города</h2>
-           <div id="casino-list" class="space-y-4"></div>
+          <h2
+            class="text-3xl font-black mb-10 italic uppercase tracking-widest text-slate-100"
+          >
+            Карта Города
+          </h2>
+          <div id="casino-list" class="space-y-4"></div>
         </div>
       </section>
 
@@ -164,55 +308,102 @@
       <section id="scene-casino" class="scene">
         <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 pt-4">
           <div class="flex-1 flex flex-col gap-6">
-            
-            <div class="bg-slate-900 p-6 md:p-10 rounded-[3rem] border-x-8 border-slate-800 relative overflow-hidden shadow-2xl">
+            <div
+              class="bg-slate-900 p-6 md:p-10 rounded-[3rem] border-x-8 border-slate-800 relative overflow-hidden shadow-2xl"
+            >
               <div class="absolute top-0 left-0 w-full h-1 bg-slate-800">
-                <div id="ui-alert-bar" class="h-full bg-red-500 transition-all duration-300" style="width: 0%"></div>
+                <div
+                  id="ui-alert-bar"
+                  class="h-full bg-red-500 transition-all duration-300"
+                  style="width: 0%"
+                ></div>
               </div>
 
               <div class="flex justify-between items-center mb-10">
-                <button id="btn-leave-casino" class="text-slate-500 hover:text-white flex items-center gap-1 text-[10px] font-bold uppercase transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> Выйти</button>
+                <button
+                  id="btn-leave-casino"
+                  class="text-slate-500 hover:text-white flex items-center gap-1 text-[10px] font-bold uppercase transition-colors"
+                >
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i> Выйти
+                </button>
                 <div class="text-right">
-                  <div class="text-[10px] text-slate-600 uppercase font-black">Сейф Казино</div>
-                  <div id="ui-vault" class="text-2xl font-black font-mono text-red-500 tracking-tighter">0</div>
+                  <div class="text-[10px] text-slate-600 uppercase font-black">
+                    Сейф Казино
+                  </div>
+                  <div
+                    id="ui-vault"
+                    class="text-2xl font-black font-mono text-red-500 tracking-tighter"
+                  >
+                    0
+                  </div>
                 </div>
               </div>
 
-              <div id="slot-grid-container" class="grid grid-cols-3 grid-rows-3 gap-2 md:gap-3 mb-10 mx-auto w-full md:w-3/4 aspect-square max-h-[400px]">
-                 <!-- Generated dynamically in main.ts -->
+              <div
+                id="slot-grid-container"
+                class="grid grid-cols-3 grid-rows-3 gap-2 md:gap-3 mb-10 mx-auto w-full md:w-3/4 aspect-square max-h-[400px]"
+              >
+                <!-- Generated dynamically in main.ts -->
               </div>
 
               <div class="flex items-center gap-4">
                 <!-- Removed Bet UI -->
 
-                <button id="btn-spin" class="flex-1 py-6 bg-emerald-500 text-slate-950 font-black text-2xl rounded-3xl shadow-[0_8px_0_rgb(5,150,105)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-20 uppercase tracking-widest relative">
+                <button
+                  id="btn-spin"
+                  class="flex-1 py-6 bg-amber-400 text-slate-950 font-black text-2xl rounded-3xl shadow-[0_8px_0_rgb(217,119,6)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-20 uppercase tracking-widest relative"
+                >
                   <span id="spin-btn-text">СПИН</span>
-                  <div id="spin-win-flyout" class="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-black px-3 py-1 rounded-full animate-bounce hidden-important"></div>
+                  <div
+                    id="spin-win-flyout"
+                    class="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-black px-3 py-1 rounded-full animate-bounce hidden-important"
+                  ></div>
                 </button>
                 <div class="flex flex-col gap-2">
-                    <button id="btn-auto-spin" class="w-16 h-10 bg-slate-800 border-2 border-slate-700 text-slate-400 text-[10px] font-black rounded-lg hover:bg-slate-700 transition-colors uppercase">
-                      AUTO: <span class="text-red-500">OFF</span>
-                    </button>
-                    <button id="btn-monte-carlo" class="w-16 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-400" title="Monte Carlo Analyzer (10K Spins)">
-                      <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                    </button>
+                  <button
+                    id="btn-auto-spin"
+                    class="w-16 h-10 bg-slate-800 border-2 border-slate-700 text-slate-400 text-[10px] font-black rounded-lg hover:bg-slate-700 transition-colors uppercase"
+                  >
+                    AUTO: <span class="text-red-500">OFF</span>
+                  </button>
+                  <button
+                    id="btn-monte-carlo"
+                    class="w-16 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-400"
+                    title="Monte Carlo Analyzer (10K Spins)"
+                  >
+                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                  </button>
                 </div>
               </div>
             </div>
 
             <!-- LOCAL HACKS -->
-            <div id="local-hacks-container" class="bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 shadow-lg"></div>
+            <div
+              id="local-hacks-container"
+              class="bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 shadow-lg"
+            ></div>
           </div>
 
           <aside class="w-full lg:w-72 space-y-4">
-            <div class="bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 shadow-lg">
-              <h4 class="text-[10px] font-black text-slate-600 uppercase mb-6 flex items-center gap-2 tracking-[0.2em]"><i data-lucide="info" class="w-4 h-4"></i> ПРАВИЛА_СИСТЕМЫ</h4>
+            <div
+              class="bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 shadow-lg"
+            >
+              <h4
+                class="text-[10px] font-black text-slate-500 uppercase mb-6 flex items-center gap-2 tracking-[0.2em]"
+              >
+                <i data-lucide="info" class="w-4 h-4"></i> ГИД МЕНЕДЖЕРА
+              </h4>
               <div id="paytable-container" class="space-y-2"></div>
             </div>
-            
-            <div id="firewall-warning" class="hidden-important p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 flex items-center gap-3 animate-pulse">
-              <i data-lucide="shield-alert" class="w-6 h-6 shrink-0"></i>
-              <div class="text-[10px] font-black leading-tight uppercase">Security_Firewall_On: Шансы снижены</div>
+
+            <div
+              id="firewall-warning"
+              class="hidden-important p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 flex items-center gap-3 animate-pulse"
+            >
+              <i data-lucide="user-x" class="w-6 h-6 shrink-0"></i>
+              <div class="text-[10px] font-black leading-tight uppercase">
+                ВНИМАНИЕ: ОХРАНА АКТИВНА
+              </div>
             </div>
           </aside>
         </div>
@@ -223,32 +414,64 @@
         <div class="h-full flex flex-col max-w-6xl mx-auto pt-4">
           <header class="flex justify-between items-end mb-6 shrink-0">
             <div class="flex items-center gap-4">
-              <div class="p-3 bg-blue-500/10 rounded-xl text-blue-500"><i data-lucide="layers" class="w-6 h-6"></i></div>
+              <div class="p-3 bg-blue-500/10 rounded-xl text-blue-500">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+              </div>
               <div>
-                <h2 class="text-2xl font-black italic text-slate-100 uppercase tracking-widest">Декбилдер</h2>
-                <p class="text-slate-500 text-xs">Активная Колода (Строго 12 карт). 
-                  <span class="text-emerald-400 font-bold ml-2">Сеты: RETRO (5 шт = Урон Х2)</span> | 
-                  <span class="text-pink-400 font-bold">IDOLS (Инициаторы, низкий вес)</span>
+                <h2
+                  class="text-2xl font-black italic text-slate-100 uppercase tracking-widest"
+                >
+                  Колода Игрока
+                </h2>
+                <p class="text-slate-500 text-xs">
+                  Активная Колода (Строго 12 карт).
+                  <span class="text-amber-400 font-bold ml-2"
+                    >Сеты: RETRO (5 шт = Урон Х2)</span
+                  >
+                  |
+                  <span class="text-pink-400 font-bold"
+                    >IDOLS (Инициаторы, низкий вес)</span
+                  >
                 </p>
               </div>
             </div>
           </header>
-          
+
           <div class="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
-              <!-- Инвентарь -->
-             <aside class="w-full lg:w-96 bg-[#2d3748] rounded-[2rem] border-4 border-slate-800 flex flex-col p-6 shrink-0 shadow-2xl relative">
-                <h3 class="text-xs font-black uppercase text-slate-500 mb-4 sticky top-0">Инвентарь Пула</h3>
-                <div id="inventory-grid" class="flex-1 overflow-y-auto grid grid-cols-3 gap-2 pb-4"></div>
-             </aside>
-             
-             <!-- Активная колода 12 -->
-             <div class="flex-1 bg-slate-900 rounded-[2rem] border-4 border-slate-700 p-8 flex flex-col shadow-2xl shrink-0 min-h-[500px]">
-                 <h3 class="text-lg font-black italic text-emerald-400 mb-6 flex justify-between items-center">
-                     <span>Загруженный Алгоритм</span>
-                     <span id="deck-count-badge" class="px-3 py-1 bg-emerald-500/20 rounded-full text-xs">12/12</span>
-                 </h3>
-                 <div id="deck-grid" class="grid grid-cols-4 gap-4 auto-rows-max flex-1 content-start"></div>
-             </div>
+            <!-- Инвентарь -->
+            <aside
+              class="w-full lg:w-96 bg-[#2d3748] rounded-[2rem] border-4 border-slate-800 flex flex-col p-6 shrink-0 shadow-2xl relative"
+            >
+              <h3
+                class="text-xs font-black uppercase text-slate-500 mb-4 sticky top-0"
+              >
+                Инвентарь Пула
+              </h3>
+              <div
+                id="inventory-grid"
+                class="flex-1 overflow-y-auto grid grid-cols-3 gap-2 pb-4"
+              ></div>
+            </aside>
+
+            <!-- Активная колода 12 -->
+            <div
+              class="flex-1 bg-slate-900 rounded-[2rem] border-4 border-slate-700 p-8 flex flex-col shadow-2xl shrink-0 min-h-[500px]"
+            >
+              <h3
+                class="text-lg font-black italic text-emerald-400 mb-6 flex justify-between items-center"
+              >
+                <span>Загруженный Алгоритм</span>
+                <span
+                  id="deck-count-badge"
+                  class="px-3 py-1 bg-emerald-500/20 rounded-full text-xs"
+                  >12/12</span
+                >
+              </h3>
+              <div
+                id="deck-grid"
+                class="grid grid-cols-4 gap-4 auto-rows-max flex-1 content-start"
+              ></div>
+            </div>
           </div>
         </div>
       </section>
@@ -257,24 +480,60 @@
       <section id="scene-shop" class="scene">
         <div class="max-w-4xl mx-auto pt-4">
           <header class="mb-10 text-center">
-            <h2 class="text-4xl font-black italic text-blue-400 uppercase tracking-tighter">Даркнет Бустеры</h2>
-            <p class="text-slate-500 font-mono">Приобретайте новые куски кода для обновления слотов.</p>
+            <h2
+              class="text-4xl font-black italic text-fuchsia-400 uppercase tracking-tighter"
+            >
+              Черный Рынок Карт
+            </h2>
+            <p class="text-slate-500 font-mono">
+              Скупайте секретные карточные стили для своих выигрышных линий.
+            </p>
           </header>
           <div class="flex justify-center mb-16 relative perspective-1000">
-             <button id="btn-buy-pack" class="group relative w-64 h-80 bg-gradient-to-tr from-blue-900 to-slate-800 rounded-3xl border-8 border-slate-700 shadow-2xl hover:scale-105 hover:rotate-2 transition-all active:scale-95 flex flex-col items-center justify-center overflow-hidden z-10">
-                 <!-- Package graphics -->
-                 <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyIiBjeT0iMiIgcj0iMiIgZmlsbD0iIzIzM2EyYSI+PC9jaXJjbGU+Cjwvc3ZnPg==')] opacity-30"></div>
-                 <i data-lucide="package-open" class="text-blue-500 w-24 h-24 mb-6 group-hover:scale-110 transition-transform"></i>
-                 <div class="font-black text-2xl tracking-widest text-slate-100">BASIC PACK</div>
-                 <div class="font-bold font-mono text-emerald-400 bg-slate-950 px-6 py-2 rounded-full mt-4">$1000</div>
-             </button>
+            <button
+              id="btn-buy-pack"
+              class="group relative w-64 h-80 bg-gradient-to-tr from-blue-900 to-slate-800 rounded-3xl border-8 border-slate-700 shadow-2xl hover:scale-105 hover:rotate-2 transition-all active:scale-95 flex flex-col items-center justify-center overflow-hidden z-10"
+            >
+              <!-- Package graphics -->
+              <div
+                class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyIiBjeT0iMiIgcj0iMiIgZmlsbD0iIzIzM2EyYSI+PC9jaXJjbGU+Cjwvc3ZnPg==')] opacity-30"
+              ></div>
+              <i
+                data-lucide="briefcase"
+                class="text-fuchsia-400 w-24 h-24 mb-6 group-hover:scale-110 transition-transform"
+              ></i>
+              <div class="font-black text-2xl tracking-widest text-slate-100">
+                VIP PACK
+              </div>
+              <div
+                class="font-bold font-mono text-emerald-400 bg-slate-950 px-6 py-2 rounded-full mt-4"
+              >
+                $1000
+              </div>
+            </button>
           </div>
-          
+
           <!-- Animated opening area overlay -->
-          <div id="gacha-reveal-overlay" class="fixed inset-0 bg-slate-950/90 z-50 hidden-important flex flex-col justify-center items-center backdrop-blur-md">
-              <h2 id="gacha-title" class="text-4xl font-black italic mb-10 text-white opacity-0 transition-opacity duration-500">ПАК ВЗЛОМАН</h2>
-              <div id="gacha-cards-container" class="flex gap-4 perspective-1000"></div>
-              <button id="btn-gacha-close" class="mt-16 px-10 py-4 border-2 border-white/20 rounded-xl font-black hover:bg-white hover:text-black transition-colors opacity-0 pointer-events-none">ПРОДОЛЖИТЬ</button>
+          <div
+            id="gacha-reveal-overlay"
+            class="fixed inset-0 bg-slate-950/90 z-50 hidden-important flex flex-col justify-center items-center backdrop-blur-md"
+          >
+            <h2
+              id="gacha-title"
+              class="text-4xl font-black italic mb-10 text-white opacity-0 transition-opacity duration-500"
+            >
+              УДАЧНАЯ СДЕЛКА
+            </h2>
+            <div
+              id="gacha-cards-container"
+              class="flex gap-4 perspective-1000"
+            ></div>
+            <button
+              id="btn-gacha-close"
+              class="mt-16 px-10 py-4 border-2 border-white/20 rounded-xl font-black hover:bg-white hover:text-black transition-colors opacity-0 pointer-events-none"
+            >
+              ПРОДОЛЖИТЬ
+            </button>
           </div>
         </div>
       </section>
@@ -283,13 +542,25 @@
       <section id="scene-skills" class="scene">
         <div class="max-w-6xl mx-auto pt-4 h-full flex flex-col">
           <header class="mb-10 text-center">
-            <h2 class="text-4xl font-black italic text-emerald-400 uppercase tracking-tighter">Ядро (Таланты)</h2>
-            <p class="text-slate-500 font-mono">Тратьте CPU Chips на постоянные обновления архитектуры.</p>
+            <h2
+              class="text-4xl font-black italic text-amber-400 uppercase tracking-tighter"
+            >
+              Стиль и Престиж (Таланты)
+            </h2>
+            <p class="text-slate-500 font-mono">
+              Тратьте Golden Chips на глобальное усиление вашей репутации.
+            </p>
           </header>
           <!-- Grid for nodes (Tier 1-4, Col 1-3) -->
-          <div id="skill-tree-container" class="w-[800px] mx-auto relative grid grid-cols-3 grid-rows-4 gap-4 pb-10">
-             <!-- SVG Lines will be drawn here -->
-             <svg id="skill-tree-lines" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+          <div
+            id="skill-tree-container"
+            class="w-[800px] mx-auto relative grid grid-cols-3 grid-rows-4 gap-4 pb-10"
+          >
+            <!-- SVG Lines will be drawn here -->
+            <svg
+              id="skill-tree-lines"
+              class="absolute inset-0 w-full h-full pointer-events-none z-0"
+            ></svg>
           </div>
         </div>
       </section>
@@ -298,49 +569,99 @@
       <section id="scene-collection" class="scene">
         <div class="max-w-6xl mx-auto pt-4 h-full flex flex-col">
           <header class="mb-10 text-center">
-            <h2 class="text-4xl font-black italic text-fuchsia-400 uppercase tracking-tighter">Символьная Библиотека</h2>
-            <p class="text-slate-500 font-mono">Все доступные и закрытые фрагменты кода.</p>
+            <h2
+              class="text-4xl font-black italic text-fuchsia-400 uppercase tracking-tighter"
+            >
+              Символьная Библиотека
+            </h2>
+            <p class="text-slate-500 font-mono">
+              Все доступные и закрытые фрагменты кода.
+            </p>
           </header>
-          
-          <div id="collection-view-packs" class="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 w-full max-w-4xl mx-auto">
-             <!-- Packs will be rendered here -->
+
+          <div
+            id="collection-view-packs"
+            class="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 w-full max-w-4xl mx-auto"
+          >
+            <!-- Packs will be rendered here -->
           </div>
 
-          <div id="collection-view-details" class="hidden-important w-full px-4 flex flex-col h-[70vh]">
-             <button id="btn-collection-back" class="mb-4 self-start px-4 py-2 border border-slate-700 rounded-lg text-slate-400 hover:text-white hover:border-slate-500 transition-colors uppercase font-black text-xs">&larr; Назад к архивам</button>
-             <h3 id="collection-set-title" class="text-2xl font-black mb-4 uppercase">...</h3>
-             <div id="collection-grid" class="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                 <!-- Set cards will be rendered here -->
-             </div>
+          <div
+            id="collection-view-details"
+            class="hidden-important w-full px-4 flex flex-col h-[70vh]"
+          >
+            <button
+              id="btn-collection-back"
+              class="mb-4 self-start px-4 py-2 border border-slate-700 rounded-lg text-slate-400 hover:text-white hover:border-slate-500 transition-colors uppercase font-black text-xs"
+            >
+              &larr; Назад к архивам
+            </button>
+            <h3
+              id="collection-set-title"
+              class="text-2xl font-black mb-4 uppercase"
+            >
+              ...
+            </h3>
+            <div
+              id="collection-grid"
+              class="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4"
+            >
+              <!-- Set cards will be rendered here -->
+            </div>
           </div>
         </div>
       </section>
 
       <!-- SCENE: RECOVERY -->
       <section id="scene-recovery" class="scene">
-        <div class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4">
-          <div class="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-8 border border-red-500/20">
-            <i data-lucide="bug" class="text-red-500 animate-pulse w-12 h-12"></i>
+        <div
+          class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4"
+        >
+          <div
+            class="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-8 border border-red-500/20"
+          >
+            <i
+              data-lucide="wallet"
+              class="text-red-500 animate-pulse w-12 h-12"
+            ></i>
           </div>
-          <h2 class="text-3xl font-black text-red-500 mb-4 italic uppercase tracking-tighter">СВЯЗЬ_ПРЕРВАНА</h2>
+          <h2
+            class="text-3xl font-black text-red-500 mb-4 italic uppercase tracking-tighter"
+          >
+            ОГРАБЛЕНИЕ ПРОВАЛЕНО
+          </h2>
           <p class="text-slate-500 text-sm mb-10 leading-relaxed italic">
-            "Тебя вышвырнули на улицу без гроша. Но твой гнев — это тоже ресурс. Бери паяльник, нужно заработать на новый вход."
+            "Тебя вышвырнули за дверь. Но ты еще сыграешь по-крупному. Возвращайся на улицу, фокусник, и заработай свой входной билет."
           </p>
-          <button id="btn-recovery-grind" class="w-full py-6 bg-white text-black font-black rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 hover:scale-105 active:scale-95 transition-all">
-            <i data-lucide="hammer"></i> ВЕРНУТЬСЯ В ТРУЩОБЫ
+          <button
+            id="btn-recovery-grind"
+            class="w-full py-6 bg-white text-black font-black rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 hover:scale-105 active:scale-95 transition-all"
+          >
+            <i data-lucide="sparkles"></i> НАЗАД К УЛИЧНОЙ МАГИИ
           </button>
         </div>
       </section>
-
     </main>
 
     <!-- LOGS OVERLAY -->
-    <div id="log-overlay" class="fixed bottom-20 md:bottom-8 left-4 md:left-72 w-64 flex flex-col gap-1 pointer-events-none z-50"></div>
+    <div
+      id="log-overlay"
+      class="fixed bottom-20 md:bottom-8 left-4 md:left-72 w-64 flex flex-col gap-1 pointer-events-none z-50"
+    ></div>
 
     <!-- Mobile Top Stats (Fallback if bottom bar lacks space) -->
-    <div class="md:hidden fixed top-0 left-0 w-full bg-slate-900/90 backdrop-blur border-b border-slate-800 p-2 flex justify-between px-4 z-40" id="m-top-stats">
-        <span class="text-emerald-400 font-mono font-bold text-xs" id="m-nav-cash-top">$0</span>
-        <span class="text-blue-400 font-mono font-bold text-xs" id="m-nav-cpu-top">0 CPU</span>
+    <div
+      class="md:hidden fixed top-0 left-0 w-full bg-slate-900/90 backdrop-blur border-b border-slate-800 p-2 flex justify-between px-4 z-40"
+      id="m-top-stats"
+    >
+      <span
+        class="text-amber-400 font-mono font-bold text-xs"
+        id="m-nav-cash-top"
+        >$0</span
+      >
+      <span class="text-amber-200 font-mono font-bold text-xs" id="m-nav-cpu-top"
+        >0 GC</span
+      >
     </div>
 
     <!-- Initialize Scripts -->

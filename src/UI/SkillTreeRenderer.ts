@@ -1,18 +1,14 @@
 import { PlayerProfile } from "../Core/PlayerProfile";
 import { SKILL_TREE } from "../Data/SkillDataAsset";
-import { UIManager } from "./UIManager";
 
 export class SkillTreeRenderer {
     private profile: PlayerProfile;
     private onUpdateMainUI: () => void;
     private container: HTMLElement;
-    private svgLines: SVGSVGElement | null;
-
     constructor(profile: PlayerProfile, onUpdateMainUI: () => void) {
         this.profile = profile;
         this.onUpdateMainUI = onUpdateMainUI;
         this.container = document.getElementById("skill-tree-container")!;
-        this.svgLines = document.getElementById("skill-tree-lines") as unknown as SVGSVGElement;
     }
 
     public render() {
@@ -44,14 +40,14 @@ export class SkillTreeRenderer {
             let cursor = "cursor-not-allowed";
 
             if (isMaxed) {
-                bgColor = "bg-emerald-900/50";
-                borderColor = "border-emerald-500";
-                textColor = "text-emerald-400";
+                bgColor = "bg-amber-900/50";
+                borderColor = "border-amber-400";
+                textColor = "text-amber-300";
                 cursor = "cursor-default";
             } else if (isPurchasable) {
-                bgColor = "bg-blue-900/30 hover:bg-blue-800/50";
-                borderColor = "border-blue-500";
-                textColor = "text-blue-400";
+                bgColor = "bg-fuchsia-900/30 hover:bg-fuchsia-800/50";
+                borderColor = "border-fuchsia-500";
+                textColor = "text-fuchsia-400";
                 cursor = "cursor-pointer hover:scale-105 transition-transform active:scale-95";
             } else if (this.checkDependencies(skill.dependsOn)) {
                 // Available to buy but no money
@@ -65,7 +61,7 @@ export class SkillTreeRenderer {
                 <div class="w-14 h-14 rounded-2xl ${bgColor} border-2 ${borderColor} flex items-center justify-center ${cursor} shadow-xl mb-2 relative group">
                    <i data-lucide="${skill.icon}" class="${textColor} w-6 h-6"></i>
                    
-                   ${currentLevel > 0 ? `<div class="absolute -top-2 -right-2 bg-emerald-500 text-slate-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center pointer-events-none">${currentLevel}</div>` : ''}
+                   ${currentLevel > 0 ? `<div class="absolute -top-2 -right-2 bg-amber-400 text-slate-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center pointer-events-none">${currentLevel}</div>` : ''}
                    
                    <!-- Tooltip -->
                    <div class="absolute top-[110%] w-64 bg-slate-900 border-2 border-slate-700 p-4 rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100]">
@@ -73,11 +69,11 @@ export class SkillTreeRenderer {
                       <div class="text-[10px] text-slate-400 mb-2">${skill.desc}</div>
                       <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-700">
                          <span class="text-xs text-slate-500">Ур. ${currentLevel}/${skill.maxLevel}</span>
-                         <span class="text-xs font-black ${this.profile.cpuChips >= skill.baseCost ? 'text-blue-400' : 'text-red-500'}">ЦЕНА: ${skill.baseCost} CPU</span>
+                         <span class="text-xs font-black ${this.profile.cpuChips >= skill.baseCost ? 'text-amber-400' : 'text-red-500'}">ЦЕНА: ${skill.baseCost} GC</span>
                       </div>
                    </div>
                 </div>
-                <div class="text-[10px] font-bold text-center w-full uppercase tracking-widest ${isMaxed ? 'text-emerald-500' : 'text-slate-500'}">${skill.name}</div>
+                <div class="text-[10px] font-bold text-center w-full uppercase tracking-widest ${isMaxed ? 'text-amber-400' : 'text-slate-500'}">${skill.name}</div>
             `;
 
             if (isPurchasable) {

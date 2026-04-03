@@ -1,9 +1,9 @@
 import { PlayerProfile } from "./Core/PlayerProfile";
 import { CasinoSession } from "./Core/CasinoSession";
 import { FortunaliaEngine } from "./Core/FortunaliaEngine";
-import type { SpinResultData } from "./Core/FortunaliaEngine";
 import { getCardById } from "./Data/CardDatabase";
 import { GambitManager } from "./Core/GambitManager";
+import { Paylines3x3 } from "./Core/Paylines";
 import { CasinoDatabase } from "./Data/CasinoDataAsset";
 import { EventBus } from "./Core/EventBus";
 import { UIManager } from "./UI/UIManager";
@@ -33,14 +33,13 @@ const gambitManager = new GambitManager();
 
 let session: CasinoSession | null = null;
 let engine: FortunaliaEngine | null = null;
-let currentBet: number = 10;
 let isOverdriveActive: boolean = false;
 let isAutoSpinActive: boolean = false;
 
 // 2. DOM Elements Setup
 UIManager.initialize();
 const deckRenderer = new DeckBuilderRenderer(profile);
-const gachaRenderer = new GachaRenderer(profile, () => updateGlobalUI());
+void new GachaRenderer(profile, () => updateGlobalUI());
 const skillRenderer = new SkillTreeRenderer(profile, () => updateGlobalUI());
 const collectionRenderer = new CollectionRenderer(profile);
 
@@ -86,13 +85,13 @@ const btnRecoveryGrind = document.getElementById("btn-recovery-grind")!;
 // 3. Helpers
 function updateGlobalUI() {
     const cashStr = `$${profile.cash.toLocaleString()}`;
-    const cpuStr = `${profile.cpuChips} CPU`;
+    const cpuStr = `${profile.cpuChips} GC`;
     const dataStrStr = `${profile.dataPoints}/1000`;
     
     // Full Nav
     navCash.textContent = cashStr;
     navCpu.textContent = cpuStr;
-    navDataText.textContent = `Data_Sync: ${dataStrStr}`;
+    navDataText.textContent = `Golden_Chips: ${dataStrStr}`;
     navDataBar.style.width = `${(profile.dataPoints / 1000) * 100}%`;
 
     // Mobile Top Bar
@@ -258,32 +257,25 @@ function enterCasino(id: string) {
     uiVault.textContent = session.vaultHp.toString();
     fwWarning.classList.add("hidden-important");
     
-    paytableContainer.innerHTML = `
-        <div class="space-y-2 text-[10px] font-mono leading-tight">
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-emerald-500">
-               <span class="text-emerald-400 font-bold uppercase">FIVE OF A KIND</span> <span class="bg-slate-900 px-2 rounded">+200 (x3.0)</span>
+    let paytableHTML = `<div class="grid grid-cols-4 gap-2 mb-2">`;
+    Paylines3x3.forEach(line => {
+        let gridHTML = `<div class="grid grid-cols-3 grid-rows-3 gap-[2px] bg-slate-950 p-[2px] rounded w-10 h-10 shrink-0 border border-slate-700">`;
+        for(let y=0; y<3; y++) {
+            for(let x=0; x<3; x++) {
+                const isPart = line.path.some(c => c.x === x && c.y === y);
+                gridHTML += `<div class="${isPart ? 'bg-yellow-400 shadow-[0_0_5px_rgb(250,204,21)]' : 'bg-slate-800'} rounded-sm"></div>`;
+            }
+        }
+        gridHTML += `</div>`;
+        paytableHTML += `
+            <div class="flex flex-col items-center justify-center bg-slate-900 border border-white/5 hover:border-white/20 transition-colors rounded p-1" title="${line.name}">
+                ${gridHTML}
+                <span class="text-[8px] font-black mt-1 text-emerald-400 text-center uppercase leading-tight">${line.name}<br>x${line.multiplier}</span>
             </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-pink-500">
-               <span class="text-pink-400 font-bold uppercase">FLUSH (5+ ОДНОЙ МАСТИ)</span> <span class="bg-slate-900 px-2 rounded">+5 (x1.1)</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-emerald-500">
-               <span class="text-emerald-400 font-bold uppercase">FOUR OF A KIND</span> <span class="bg-slate-900 px-2 rounded">+50 (x2.0)</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-slate-500">
-               <span class="text-slate-400 font-bold uppercase">FULL HOUSE</span> <span class="bg-slate-900 px-2 rounded">+20 (x1.5)</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-slate-500">
-               <span class="text-slate-400 font-bold uppercase">THREE OF A KIND</span> <span class="bg-slate-900 px-2 rounded">+10 (x1.2)</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-slate-500">
-               <span class="text-slate-400 font-bold uppercase">TWO PAIR</span> <span class="bg-slate-900 px-2 rounded">+5 (x1.0)</span>
-            </div>
-            <div class="bg-slate-950 p-2 rounded flex justify-between border-l-2 border-slate-500">
-               <span class="text-slate-400 font-bold uppercase">PAIR</span> <span class="bg-slate-900 px-2 rounded">+0 (x0.8)</span>
-            </div>
-            <div class="mt-2 text-[9px] text-slate-600 block text-center leading-tight">УРОН НАНОСЯТ ТОЛЬКО КАРТЫ СЫГРАВШЕЙ РУКИ. ФЛЕШ ИЗ IDOLS ДАЕТ OVERDRIVE.</div>
-        </div>
-    `;
+        `;
+    });
+    paytableHTML += `</div><div class="mt-2 text-[9px] text-slate-500 block text-center leading-tight">УРОН НАНОСЯТ ТОЛЬКО КАРТЫ СЫГРАВШЕЙ ЛИНИИ. СОВПАДЕНИЕ 3Х IDOLS ДАЕТ OVERDRIVE.</div>`;
+    paytableContainer.innerHTML = paytableHTML;
 
     spinBtnText.textContent = `СПИН ($${getSpinCost()})`;
     
@@ -370,20 +362,18 @@ btnMonteCarlo.addEventListener("click", () => {
         // Run with base parameters (entropy 2, basic luck)
         const result = engine.executeSpin(2, 0, false, { luck: 0, mult: 0, dmg: 0 });
         totalDmg += result.totalDamage;
-        handStats[result.handName] = (handStats[result.handName] || 0) + 1;
+        
+        const key = result.lineHits.length > 0 ? `${result.lineHits.length}-Lines` : "PUNT";
+        handStats[key] = (handStats[key] || 0) + 1;
     }
     
     const rtp = ((totalDmg / totalSpent) * 100).toFixed(2);
-    const msg = `[MONTE-CARLO 10K] Return to Player (RTP): ${rtp}%\n` + 
-                `High Card: ${(handStats["HIGH_CARD"] || 0)/100}%\n` +
-                `Pair: ${(handStats["PAIR"] || 0)/100}%\n` +
-                `Two Pair: ${(handStats["TWO_PAIR"] || 0)/100}%\n` +
-                `3 of Kind: ${(handStats["THREE_OF_A_KIND"] || 0)/100}%\n` +
-                `Full House: ${(handStats["FULL_HOUSE"] || 0)/100}%\n` +
-                `Flush: ${(handStats["FLUSH"] || 0)/100}%\n` +
-                `4 of Kind: ${(handStats["FOUR_OF_A_KIND"] || 0)/100}%\n` +
-                `5 of Kind: ${(handStats["FIVE_OF_A_KIND"] || 0)/100}%\n` +
-                `Punt (Junk): ${(handStats["PUNT"] || 0)/100}%`;
+    let st = "";
+    Object.keys(handStats).sort().forEach(k => {
+        st += `${k}: ${(handStats[k]/spins*100).toFixed(2)}%\n`;
+    });
+    
+    const msg = `[MONTE-CARLO 10K] Return to Player (RTP): ${rtp}%\n` + st;
                 
     console.log(msg);
     logMessage(`[ЭМУЛЯТОР 10K] RTP: ${rtp}%. Статистика в консоли браузере.`);
@@ -419,26 +409,20 @@ btnSpin.addEventListener("click", () => {
     profile.cash -= actualCost;
     updateGlobalUI();
     btnSpin.disabled = true;
-    spinBtnText.textContent = "HACKING";
+    spinBtnText.textContent = "СТАВКА...";
     
-    for(let i=0; i<9; i++) {
-        const el = document.getElementById(`slot-cell-${i}`);
-        if(el) {
-            el.className = "bg-slate-900 rounded-xl border border-emerald-500/20 flex items-center justify-center font-black shadow-inner overflow-hidden relative";
-        }
-    }
-    
-    // Reel spinning visual effect
-    const spinChars = ["0", "1", "$", "@", "X", "?", "%"];
+    // Reel spinning visual effect (The Golden Heist Feel)
     const animInterval = setInterval(() => {
         for(let i=0; i<9; i++) {
             const el = document.getElementById(`slot-cell-${i}`);
             if (el) {
-                const rChar = spinChars[Math.floor(Math.random() * spinChars.length)];
-                el.innerHTML = `<span class="text-emerald-500 opacity-50 blur-[2px] animate-pulse text-4xl">${rChar}</span>`;
+                const colors = ['bg-fuchsia-500', 'bg-amber-400', 'bg-pink-500', 'bg-slate-700'];
+                const rColor = colors[Math.floor(Math.random() * colors.length)];
+                el.innerHTML = `<div class="w-full h-full ${rColor} opacity-50 blur-[2px] transition-all duration-75 scale-y-[2.5]"></div>`;
+                el.className = "bg-slate-900 rounded-xl border border-amber-400/20 flex items-center justify-center font-black shadow-inner overflow-hidden relative";
             }
         }
-    }, 80);
+    }, 50);
     
     setTimeout(() => {
         clearInterval(animInterval);
@@ -461,11 +445,11 @@ btnSpin.addEventListener("click", () => {
         if (result.grantedOverdrive) {
             isOverdriveActive = true;
             overdriveBadge.classList.remove("hidden-important");
-            logMessage(`⚡ IDOL CONCERT: УДАЧА х2 НА СЛЕДУЮЩИЙ ХОД!`);
+            logMessage(`⚡ VIP-СТАТУС: УДАЧА х2 НА СЛЕДУЮЩИЙ ХОД!`);
         }
         
         if (result.convertedCells.length > 0) {
-            logMessage(`✨ GLITCH POP: Идолы очистили мусор (${result.convertedCells.length} шт)!`);
+            logMessage(`✨ ОТВЛЕЧЕНИЕ ОХРАНЫ: Идолы убрали мусор (${result.convertedCells.length} шт)!`);
         }
 
         // Render to UI
@@ -493,19 +477,19 @@ btnSpin.addEventListener("click", () => {
                         
                         // Indicators 
                         if (cell.currentCard.isInitiator) {
-                            baseClass += " border-yellow-500/50 text-yellow-400";
-                            el.innerHTML += `<div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-yellow-400"></div>`;
+                            baseClass += " border-amber-400/50 text-amber-300";
+                            el.innerHTML += `<div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-amber-400"></div>`;
                         } else if (cell.currentCard.isFinisher) {
-                            baseClass += " border-red-500/50 text-red-400";
-                            el.innerHTML += `<div class="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-red-400"></div>`;
+                            baseClass += " border-fuchsia-500/50 text-fuchsia-400";
+                            el.innerHTML += `<div class="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-fuchsia-400"></div>`;
                         } else {
-                            baseClass += " border-emerald-500/30 text-emerald-400";
+                            baseClass += " border-pink-500/30 text-pink-400";
                         }
                         
                         const isGlitched = result.convertedCells.some(c => c.x === x && c.y === y);
                         if (isGlitched) {
                             baseClass += " animate-pulse ring-4 ring-pink-500 shadow-[0_0_20px_rgba(236,72,153,1)]";
-                            el.innerHTML += `<div class="absolute top-0 text-[8px] bg-pink-500 text-black px-1 font-bold">GLITCH</div>`;
+                            el.innerHTML += `<div class="absolute top-0 text-[8px] bg-pink-500 text-black px-1 font-bold">ОТВЛЕЧЕН</div>`;
                         }
                         
                         el.className = baseClass;
@@ -515,7 +499,7 @@ btnSpin.addEventListener("click", () => {
         }
         if (window.lucide) window.lucide.createIcons();
         
-        // --- HIGHLIGHT COMBOS (BALATRO POKER STYLE) ---
+        // --- HIGHLIGHT COMBOS (PAYLINES) ---
         let comboModsText = "";
         const participated = result.participatingCells;
         
@@ -534,31 +518,32 @@ btnSpin.addEventListener("click", () => {
             }
         }
         
-        if (result.handName !== "PUNT") {
-            comboModsText += `${result.handName.replace(/_/g, " ")} (x${result.handMultiplier}) `;
-            logMessage(`💥 ПОКЕРНАЯ РУКА: ${result.handName} (Множитель x${result.handMultiplier})`);
+        if (result.lineHits.length > 0) {
+            result.lineHits.forEach(hit => {
+                comboModsText += `${hit.lineName} (x${hit.multiplier}) `;
+                logMessage(`💥 ЛИНИЯ СЫГРАЛА: ${hit.lineName} (Множитель x${hit.multiplier})`);
+            });
         } else {
-            logMessage(`🔴 МУСОРНЫЙ СПИН! (Отыграла лишь старшая карта)`);
+            logMessage(`🔴 МУСОРНЫЙ СПИН!`);
         }
         
-        if (result.handName === "FLUSH") {
+        if (result.grantedOverdrive) {
             const container = document.getElementById("slot-grid-container")!;
-            container.classList.add("ring-8", "ring-emerald-500", "shadow-[0_0_50px_rgb(16,185,129)]");
-            setTimeout(() => container.classList.remove("ring-8", "ring-emerald-500", "shadow-[0_0_50px_rgb(16,185,129)]"), 2000);
-            if (result.grantedOverdrive) logMessage("🏆 КОНЦЕРТ ИДОЛОВ: Overdrive активирован!");
-            else logMessage("🏆 РЕЗОНАНС КОДА: FLUSH!");
+            container.classList.add("ring-8", "ring-fuchsia-500", "shadow-[0_0_50px_rgb(217,70,239)]");
+            setTimeout(() => container.classList.remove("ring-8", "ring-fuchsia-500", "shadow-[0_0_50px_rgb(217,70,239)]"), 2000);
+            logMessage("🏆 VIP СТАТУС: Overdrive активирован!");
         }
         
         // Output Stack evaluation to log
-        logMessage(`Стек выполнен. Итоговый Урон: $${result.totalDamage}. Ставка была: $${actualCost}`);
+        logMessage(`Выигрыш зачислен. Итоговый Урон: $${result.totalDamage}. Ставка была: $${actualCost}`);
         
         // Risk Mechanic: Inflation Tracker
-        if (result.totalDamage >= (session!.baseVaultHp * 0.05) || (result.handName !== "PUNT" && result.handName !== "HIGH_CARD")) {
-             if (session!.inflationCount > 0) logMessage(`INFLATION RESET! Значимый урон нанесен.`);
+        if (result.totalDamage >= (session!.baseVaultHp * 0.05) || result.lineHits.length > 0) {
+             if (session!.inflationCount > 0) logMessage(`УРОВЕНЬ ТРЕВОГИ СБРОШЕН! Сейф пробит.`);
              session!.inflationCount = 0;
         } else {
              session!.inflationCount++;
-             logMessage(`🔥 ПУСТОЙ ХОД! Инфляция выросла до +${session!.inflationCount * 10}%.`);
+             logMessage(`🔥 ПУСТОЙ ХОД! Охрана нервничает: тревога +${session!.inflationCount * 10}%.`);
         }
 
         spinBtnText.textContent = `СПИН ($${getSpinCost()})`;

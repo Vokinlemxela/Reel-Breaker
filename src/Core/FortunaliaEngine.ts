@@ -1,5 +1,7 @@
 import { CardSet } from "./Enums";
-import type { CardData, ICardEffect } from "./CardData";
+import type { CardData } from "./CardData";
+import { Paylines3x3 } from "./Paylines";
+export type { Payline } from "./Paylines";
 
 export interface SlotCell {
     x: number;
@@ -62,7 +64,13 @@ export class ActionCommand {
     }
 }
 
-export type PokerHand = "FIVE_OF_A_KIND" | "FLUSH" | "FOUR_OF_A_KIND" | "FULL_HOUSE" | "THREE_OF_A_KIND" | "TWO_PAIR" | "PAIR" | "HIGH_CARD" | "PUNT";
+export interface LineHit {
+    lineId: number;
+    lineName: string;
+    cardId: string;
+    multiplier: number;
+    cells: {x: number, y: number}[];
+}
 
 export interface SpinResultData {
     grid: SlotCell[][];
@@ -71,9 +79,7 @@ export interface SpinResultData {
     junkCount: number;
     convertedCells: { x: number, y: number }[];
     grantedOverdrive: boolean;
-    handName: PokerHand;
-    handMultiplier: number;
-    handFlatDmg: number;
+    lineHits: LineHit[];
     participatingCells: { x: number, y: number }[];
 }
 
@@ -101,14 +107,9 @@ export class FortunaliaEngine {
         
         const stack: ActionCommand[] = [];
         let grantedOverdrive = false;
-        let handState = {
-            name: "PUNT" as PokerHand,
-            flatDmg: 0,
-            multiplier: 1,
-            cells: [] as {x: number, y: number}[]
-        };
+        let spinHits: LineHit[] = [];
 
-        this.resolveStack(state, stack, (awardedOverdrive) => grantedOverdrive = awardedOverdrive, (hand) => handState = hand, localMods);
+        this.resolveStack(state, stack, (awardedOverdrive) => grantedOverdrive = awardedOverdrive, (hits) => spinHits = hits, localMods);
 
         let totalDamage = 0;
         let junkCount = 0;
@@ -124,6 +125,9 @@ export class FortunaliaEngine {
         }
         
         totalDamage = Math.floor(totalDamage);
+        
+        const partCells: {x:number, y:number}[] = [];
+        spinHits.forEach(h => h.cells.forEach(c => partCells.push(c)));
 
         return {
             grid: state.cells,
@@ -132,10 +136,8 @@ export class FortunaliaEngine {
             junkCount,
             convertedCells: state.convertedCells,
             grantedOverdrive,
-            handName: handState.name,
-            handMultiplier: handState.multiplier,
-            handFlatDmg: handState.flatDmg,
-            participatingCells: handState.cells
+            lineHits: spinHits,
+            participatingCells: partCells
         };
     }
 
@@ -202,21 +204,38 @@ export class FortunaliaEngine {
         }
     }
 
-    private resolveStack(state: GridState, outStack: ActionCommand[], onOverdriveAwarded: (v: boolean) => void, onHandResolved: (h: any) => void, localMods?: {luck:number, dmg:number, mult:number}) {
-        // Phase 1: Identify Best Hand among non-consumed cells
-        const hand = this.evaluatePokerHand(state);
-        onHandResolved(hand);
+    private resolveStack(state: GridState, outStack: ActionCommand[], onOverdriveAwarded: (v: boolean) => void, onHitsResolved: (hits: LineHit[]) => void, localMods?: {luck:number, dmg:number, mult:number}) {
+        const hits = this.evaluatePaylines(state);
+        onHitsResolved(hits);
         
-        // Phase 2: Build ActionCommand stack ONLY for participating cards
+        // Build ActionCommand stack ONLY for cards part of a winning line
+        const uniqueCells = new Map<string, {x:number, y:number}>();
+        for (const hit of hits) {
+            for (const cell of hit.cells) {
+                uniqueCells.set(`${cell.x},${cell.y}`, cell);
+            }
+        }
+
         const initiators: ActionCommand[] = [];
         const normals: ActionCommand[] = [];
         const finishers: ActionCommand[] = [];
 
-        for (const loc of hand.cells) {
+        for (const loc of uniqueCells.values()) {
             const cell = state.cells[loc.x][loc.y];
             if (!cell.currentCard) continue;
             
             const cmd = new ActionCommand(cell.currentCard, { x: loc.x, y: loc.y });
+            
+            // Calculate base damage for this cell depending on how many lines it is part of
+            let cellMultiplierSum = 0;
+            for (const hit of hits) {
+                if (hit.cells.some(c => c.x === loc.x && c.y === loc.y)) {
+                    cellMultiplierSum += hit.multiplier;
+                }
+            }
+            
+            cmd.finalDamage = cell.currentCard.baseDamage * cellMultiplierSum;
+            
             if (cell.currentCard.isInitiator) initiators.push(cmd);
             else if (cell.currentCard.isFinisher) finishers.push(cmd);
             else normals.push(cmd);
@@ -228,37 +247,27 @@ export class FortunaliaEngine {
             outStack[i].stackOrder = i + 1;
         }
 
-        // Phase 3: Auras & Consume (Executes effects like Glitch Pop)
+        // Phase 3: Auras & Consume
         this.executePhase(outStack, state);
 
-        // Phase 4: Apply Hand Multiplier and flat damage to final commands
-        let flatBonusApplied = false;
+        // Phase 4: Apply Local Hacks
         for (const cmd of outStack) {
             if (!cmd.isCancelled) {
-                // Apply the Hand's structural flat damage bonus JUST ONCE across the entire hand (we dump it on the first valid card)
-                if (!flatBonusApplied) {
-                    cmd.finalDamage += hand.flatDmg;
-                    flatBonusApplied = true;
-                }
-                
-                // Apply local store flat damage bonus
                 if (localMods?.dmg) cmd.finalDamage += localMods.dmg;
-                
-                cmd.finalDamage *= hand.multiplier;
-                
-                // Apply local hack multiplier
                 if (localMods?.mult) cmd.finalDamage *= (1 + localMods.mult);
                 cmd.finalDamage = Math.floor(cmd.finalDamage);
             }
         }
         
-        // Grant Overdrive if it's a Neon Idols Flush
-        if (hand.name === "FLUSH") {
-            const sampleCell = state.cells[hand.cells[0].x][hand.cells[0].y];
+        // Grant Overdrive if we have ANY Neon Idols winning line
+        let hasIdolLine = false;
+        for (const hit of hits) {
+            const sampleCell = state.cells[hit.cells[0].x][hit.cells[0].y];
             if (sampleCell && sampleCell.currentCard?.cardSet === CardSet.NeonIdols) {
-                onOverdriveAwarded(true);
+                hasIdolLine = true;
             }
         }
+        if (hasIdolLine) onOverdriveAwarded(true);
     }
 
     private executePhase(stack: ActionCommand[], state: GridState) {
@@ -277,69 +286,46 @@ export class FortunaliaEngine {
         }
     }
 
-    private evaluatePokerHand(state: GridState): { name: PokerHand, flatDmg: number, multiplier: number, cells: {x:number,y:number}[] } {
-        // Collect all valid cards
-        const allValid: {x:number, y:number, card: CardData}[] = [];
-        for (let x=0; x<GridState.WIDTH; x++) {
-            for (let y=0; y<GridState.HEIGHT; y++) {
-                const c = state.cells[x][y];
-                if (c.currentCard && !c.isConsumed) {
-                    allValid.push({x, y, card: c.currentCard});
+    private evaluatePaylines(state: GridState): LineHit[] {
+        const hits: LineHit[] = [];
+        
+        for (const line of Paylines3x3) {
+            let firstCardId: string | null = null;
+            let isMatch = true;
+            
+            for (const pos of line.path) {
+                // Bounds checking
+                if (pos.x >= GridState.WIDTH || pos.y >= GridState.HEIGHT) {
+                    isMatch = false; 
+                    break;
                 }
+                
+                const cell = state.cells[pos.x][pos.y];
+                if (!cell.currentCard || cell.isConsumed) {
+                    isMatch = false;
+                    break;
+                }
+                
+                if (firstCardId === null) {
+                    firstCardId = cell.currentCard.id;
+                } else if (firstCardId !== cell.currentCard.id) {
+                    isMatch = false;
+                    break;
+                }
+            }
+            
+            if (isMatch && firstCardId) {
+                hits.push({
+                    lineId: line.id,
+                    lineName: line.name,
+                    cardId: firstCardId,
+                    multiplier: line.multiplier,
+                    cells: [...line.path]
+                });
             }
         }
         
-        if (allValid.length === 0) return { name: "PUNT", flatDmg: 0, multiplier: 1, cells: [] };
-
-        // Group by ID
-        const idGroups = new Map<string, typeof allValid>();
-        // Group by Set
-        const setGroups = new Map<CardSet, typeof allValid>();
-
-        for (const item of allValid) {
-            if (!idGroups.has(item.card.id)) idGroups.set(item.card.id, []);
-            idGroups.get(item.card.id)!.push(item);
-            
-            if (!setGroups.has(item.card.cardSet)) setGroups.set(item.card.cardSet, []);
-            setGroups.get(item.card.cardSet)!.push(item);
-        }
-
-        // Sort groups by size descending
-        const sortedIdGroups = Array.from(idGroups.values()).sort((a,b) => b.length - a.length);
-        const largestIdGroup = sortedIdGroups[0] || [];
-        const secondLargestIdGroup = sortedIdGroups[1] || [];
-        
-        const largestSetGroup = Array.from(setGroups.values()).sort((a,b) => b.length - a.length)[0] || [];
-
-        // Condition Checkers (NERFED FOR BALANCE - ANTI-DUPE)
-        if (largestIdGroup.length >= 5) {
-            return { name: "FIVE_OF_A_KIND", flatDmg: 200, multiplier: 3.0, cells: largestIdGroup.slice(0, 5).map(i => ({x:i.x,y:i.y})) };
-        }
-        if (largestIdGroup.length >= 4) {
-            return { name: "FOUR_OF_A_KIND", flatDmg: 50, multiplier: 2.0, cells: largestIdGroup.slice(0, 4).map(i => ({x:i.x,y:i.y})) };
-        }
-        if (largestIdGroup.length >= 3 && secondLargestIdGroup.length >= 2) {
-            const h = [...largestIdGroup.slice(0, 3), ...secondLargestIdGroup.slice(0, 2)];
-            return { name: "FULL_HOUSE", flatDmg: 20, multiplier: 1.5, cells: h.map(i => ({x:i.x,y:i.y})) };
-        }
-        if (largestIdGroup.length >= 3) {
-            return { name: "THREE_OF_A_KIND", flatDmg: 10, multiplier: 1.2, cells: largestIdGroup.slice(0, 3).map(i => ({x:i.x,y:i.y})) };
-        }
-        // Check FLUSH
-        if (largestSetGroup.length >= 5) { 
-            return { name: "FLUSH", flatDmg: 5, multiplier: 1.1, cells: largestSetGroup.slice(0, 5).map(i => ({x:i.x,y:i.y})) };
-        }
-        if (largestIdGroup.length >= 2 && secondLargestIdGroup.length >= 2) {
-            const h = [...largestIdGroup.slice(0, 2), ...secondLargestIdGroup.slice(0, 2)];
-            return { name: "TWO_PAIR", flatDmg: 5, multiplier: 1.0, cells: h.map(i => ({x:i.x,y:i.y})) };
-        }
-        if (largestIdGroup.length >= 2) {
-            return { name: "PAIR", flatDmg: 0, multiplier: 0.8, cells: largestIdGroup.slice(0, 2).map(i => ({x:i.x,y:i.y})) };
-        }
-
-        // HIGH CARD fallback
-        const highestDmgItem = [...allValid].sort((a,b) => b.card.baseDamage - a.card.baseDamage)[0];
-        return { name: "HIGH_CARD", flatDmg: 0, multiplier: 0.5, cells: [{x:highestDmgItem.x, y:highestDmgItem.y}] };
+        return hits;
     }
 
     private shuffleArray(array: any[]) {
